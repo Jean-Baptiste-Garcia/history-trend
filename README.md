@@ -5,9 +5,8 @@ history-trend is an API to compute trends from an history source. There are two 
 * in memory array of versionned reports
 * streamed (using node.js stream.Readable)
 
-For streams, you can use one of these modules :
-* filesystem storage (use history-fs-store)
-* server side memory storage (use history-fs-store)
+[history-store](https://github.com/Jean-Baptiste-Garcia/history-store) has been specifically developped for that purpose.
+
 
 Installation
 ------------
@@ -24,11 +23,13 @@ Then in the console:
 var H = require('history-trend');
 ```
 
+Usage
+-----
 
 ##Flux
-Flux compares two versions of an object and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
+Flux compares two consecutive report versions and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
 
-As an example, we consider history of issues present in a backlog. One wants to know which issues are added / removed.
+As an example, we consider history of issues present in a backlog. One wants to know which issues have been added / removed.
 
 ```javascript
  var reports = [
@@ -55,18 +56,34 @@ It is possible to change identification method:
 
 ```javascript
 H.flux({ name: 'issues',
-         identification: 'id' // using property 'id' instead of 'key'
+        // using property 'id' instead of 'key'
+        identification: 'id'
        }, data);
 ```
 
 ## Timeserie
-is a convenient way to pick only useful information or even to proceed to some computations.
+Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
 
 
-### Custom function
+```javascript
+var data = [
+    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
+    { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
+    { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
+];
+H.timeserie('sessionCount').data(data);
 
+// returns
+[
+    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+    { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
+    { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
+]
+
+```
 
 ## Count
-convenient
+Count simply counts length of an array.
 
-# history-server
+## Chaining
+It is possible to chain all trends.
