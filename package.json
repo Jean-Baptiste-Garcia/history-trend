@@ -1,21 +1,29 @@
 {
-  "name": "history-trend",
-  "version": "0.1.0",
-  "description": "compute historic trends",
-  "main": "index.js",
-  "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --recursive --reporter spec",
-    "watch-test": "./node_modules/mocha/bin/mocha --watch --recursive --reporter spec"
-  },
-  "author": "jbg",
-  "license": "ISC",
-  "devDependencies": {
-    "chai": "^3.2.0",
-    "mocha": "^2.2.5",
-    "async": "^1.4.2"
-  },
-  "dependencies": {
-    "fs-extra": "^0.24.0",
-    "ramda": "^0.17.1"
-  }
+    "name": "history-trend",
+    "version": "0.1.0",
+    "description": "compute historic trends",
+    "main": "index.js",
+    "scripts": {
+        "test": "./node_modules/mocha/bin/mocha --recursive --reporter spec",
+        "watch-test": "./node_modules/mocha/bin/mocha --watch --recursive --reporter spec"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/Jean-Baptiste-Garcia/history-trend.git"
+    },
+    "keywords": [
+        "history",
+        "analytics"
+    ],
+    "author": "jbg",
+    "license": "ISC",
+    "devDependencies": {
+        "chai": "^3.2.0",
+        "mocha": "^2.2.5",
+        "async": "^1.4.2"
+    },
+    "dependencies": {
+        "fs-extra": "^0.24.0",
+        "ramda": "^0.17.1"
+    }
 }

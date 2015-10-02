@@ -83,7 +83,7 @@ H.timeserie('sessionCount').data(data);
 ```
 
 ## Count
-Count simply counts length of an array.
+Count simply returns length of an array.
 
 ## Chaining
 It is possible to chain all trends.
