@@ -11,15 +11,15 @@ var DiffArray = require('../x-array/x-array'),
 module.exports = function FLux(getter, options) {
     'use strict';
     var diff,
-        currentValue,
         lastValue;
 
     return function flux(report) {
-        currentValue = getter(report);
+        var currentValue = getter(report),
+            fluxValue;
         if (!diff) {
             diff =  (currentValue instanceof Array) ? new DiffArray(options[0]) : new DiffObject();
         }
-        var fluxValue = diff(lastValue, currentValue);
+        fluxValue = diff(lastValue, currentValue);
         lastValue = currentValue;
         return fluxValue;
     };
