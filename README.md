@@ -25,7 +25,6 @@ var H = require('history-trend');
 
 Usage
 -----
-
 ###Flux
 Flux compares two consecutive report versions and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
 
@@ -85,8 +84,23 @@ H.timeserie('sessionCount').data(data);
 ### Count
 Count simply returns length of an array.
 
+
+### Using streams
+Any trend can read ```Readable.Stream```. Using stream minimizes memory consumption.
+
+Here is an example when history source is relying on [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
+
+```javascript
+var store = require('history-store')('../history'),
+    source = store('project');
+ // trend returns the count of issues over time
+ H.count('issues').data(source.stream(), function (err, trend) {} );
+```
+In principle, any stream will work, provided ```data event``` returns a report.
+
+
 ### Chaining
-It is possible to chain all trends.
+It is possible to chain all trends ...
 
 Test
 ------------
