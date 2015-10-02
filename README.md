@@ -26,7 +26,7 @@ var H = require('history-trend');
 Usage
 -----
 
-##Flux
+###Flux
 Flux compares two consecutive report versions and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
 
 As an example, we consider history of issues present in a backlog. One wants to know which issues have been added / removed.
@@ -61,7 +61,7 @@ H.flux({ name: 'issues',
        }, data);
 ```
 
-## Timeserie
+### Timeserie
 Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
 
 
@@ -82,8 +82,15 @@ H.timeserie('sessionCount').data(data);
 
 ```
 
-## Count
+### Count
 Count simply returns length of an array.
 
-## Chaining
+### Chaining
 It is possible to chain all trends.
+
+Test
+------------
+
+```bash
+$ npm test
+```
