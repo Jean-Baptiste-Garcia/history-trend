@@ -1,11 +1,11 @@
 history-trend
 ===============
 
-history-trend is an API to compute trends from an history source. There are two types of history sources currently supported :
+history-trend computes trends from an history source. Source can be :
 * in memory array of versionned reports
 * streamed (using node.js stream.Readable)
 
-[history-store](https://github.com/Jean-Baptiste-Garcia/history-store) has been specifically developped for that purpose.
+[history-store](https://github.com/Jean-Baptiste-Garcia/history-store) is a streamable file system source.
 
 
 Installation
@@ -17,15 +17,9 @@ To use with node:
 $ npm install history-trend
 ```
 
-Then in the console:
-
-```javascript
-var H = require('history-trend');
-```
-
 Usage
 -----
-###Flux
+### Flux
 Flux compares two consecutive report versions and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
 
 As an example, we consider history of issues present in a backlog. One wants to know which issues have been added / removed.

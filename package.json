@@ -1,7 +1,7 @@
 {
     "name": "history-trend",
-    "version": "0.1.0",
-    "description": "compute historic trends",
+    "version": "0.1.1",
+    "description": "Compute historic trends",
     "main": "index.js",
     "scripts": {
         "test": "./node_modules/mocha/bin/mocha --recursive --reporter spec",
