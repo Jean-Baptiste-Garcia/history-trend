@@ -25,7 +25,8 @@ Flux compares two consecutive report versions and returns added/removed/identica
 As an example, we consider history of issues present in a backlog. One wants to know which issues have been added / removed.
 
 ```javascript
- var reports = [
+ var H = require('history-trend'),
+     reports = [
             {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
             {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}]},
             {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}]}];
@@ -59,12 +60,13 @@ Timeserie is a convenient way to pick only useful information and even to procee
 
 
 ```javascript
-var data = [
+var H = require('history-trend'),
+    reports = [
     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
     { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
     { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
 ];
-H.timeserie('sessionCount').data(data);
+H.timeserie('sessionCount').data(reports);
 
 // returns
 [
@@ -82,13 +84,14 @@ Count simply returns length of an array.
 ### Using streams
 Any trend can read ```Readable.Stream```. Using stream minimizes memory consumption.
 
-Here is an example when history source is relying on [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
+For streamed history source, please refer to [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
 
 ```javascript
-var store = require('history-store')('../history'),
+var H = require('history-trend'),
+    store = require('history-store')('../history'),
     source = store('project');
  // trend returns the count of issues over time
- H.count('issues').data(source.stream(), function (err, trend) {} );
+ H.count('issues').data(source.stream(), function (err, trends) {} );
 ```
 In principle, any stream will work, provided ```data event``` returns a report.
 
