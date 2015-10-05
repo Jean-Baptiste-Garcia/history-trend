@@ -49,10 +49,10 @@ will return
 It is possible to change identification method:
 
 ```javascript
-H.flux({ name: 'issues',
+H.flux({name: 'issues',
         // using property 'id' instead of 'key'
         identification: 'id'
-       }, data);
+       }).data(reports);
 ```
 
 ### Timeserie
