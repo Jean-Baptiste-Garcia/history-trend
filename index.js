@@ -146,7 +146,7 @@ module.exports = (function () {
         // which simply pushes an action and returns chain
         function makeChainedTrend(Trend) {
             return function (field, options) {
-                actions.push({name: trendName(field), reporter: new Trend(makeGetter(field), options)});
+                actions.push({name: trendName(field), reporter: new Trend(makeGetter(field), options || [])});
                 return chain;
             };
         }
