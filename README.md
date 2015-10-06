@@ -60,11 +60,13 @@ Note that name of trend is function name (bugs in our example). When function is
 
 #### Identification method
 By default, when computing flux on object arrays, two objects are said to be identical when
+
 1. They have same key property value
 2. All others properties have same value
 
 1st condition is called identification method. 2nd condition tells whether objects have been modified or not.
-It is possible to change identification method. For instance if issues are identified by ```id``` property :
+
+It is possible to change identification method. For instance, if issues are identified by ```id``` property, use :
 ```javascript
 H.flux('issues', 'id').data(reports);
 ```
