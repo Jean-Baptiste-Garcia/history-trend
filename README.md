@@ -62,20 +62,47 @@ Timeserie is a convenient way to pick only useful information and even to procee
 ```javascript
 var H = require('history-trend'),
     reports = [
-    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
-    { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
-    { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
+    {date: new Date('1995-12-17T03:24:00'), sessions: 100, disk: {free: 2000, used: 1000}},
+    {date: new Date('1995-12-18T03:24:00'), sessions: 110, disk: {free: 1500, used: 1500}},
+    {date: new Date('1995-12-20T03:24:00'), sessions: 120, disk: {free: 1000, used: 2000}}
 ];
-H.timeserie('sessionCount').data(reports);
+H.timeserie('sessions').data(reports);
 
 // returns
 [
-    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
-    { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
-    { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
+    { date: new Date('1995-12-17T03:24:00'), sessions: 100},
+    { date: new Date('1995-12-18T03:24:00'), sessions: 110},
+    { date: new Date('1995-12-20T03:24:00'), sessions: 120}
 ]
-
 ```
+It is possible to access nested properties :
+
+```javascript
+H.timeserie('disk.used').data(reports)
+// returns
+[
+    {date: new Date('1995-12-17T03:24:00'), used: 1000},
+    {date: new Date('1995-12-18T03:24:00'), used: 1500},
+    {date: new Date('1995-12-20T03:24:00'), used: 2000}
+]
+```
+
+And it is possible to use any function that operates on a report :
+```javascript
+ function diskUsageRatio(report) {
+    return report.disk.used / (report.disk.free + report.disk.used);
+}
+
+H.timeserie(diskUsageRatio).data(reports);
+
+// returns
+[
+    { date: new Date('1995-12-17T03:24:00'), diskUsageRatio: 0.3333333333333333},
+    { date: new Date('1995-12-18T03:24:00'), diskUsageRatio: 0.5},
+    { date: new Date('1995-12-20T03:24:00'), diskUsageRatio: 0.6666666666666666}
+]
+```
+Using custom functions is specially convenient when reports are raw and you focus on consolidated data.
 
 ### Count
 Count simply returns length of an array.
@@ -91,13 +118,29 @@ var H = require('history-trend'),
     store = require('history-store')('../history'),
     source = store('project');
  // trend returns the count of issues over time
- H.count('issues').data(source.stream(), function (err, trends) {} );
+ H.count('issues').data(source.stream(), function (err, trends){} );
 ```
 In principle, any stream will work, provided ```data event``` returns a report.
 
 
 ### Chaining
-It is possible to chain all trends ...
+It is possible to chain all trends so that several trends can be computed in one call.
+```javascript
+var H = require('history-trend');
+
+H.count('issues').flux('issues').timeserie('workload').data(source.stream(), function (err, trends){} );
+```
+
+Use Case
+---------
+**Project management**
+
+You are monitoring a project. You work with daily reports. Each day, you know how many tasks are open or closed. You have an estimation of remaining workload. So each day you have a photo of the project state. But you don't have the whole story. How remaining worklaod behaves over time? Have some new tasks been added, so that it explains why number of open tasks seems to be constant for two weeks? Have tasks been removed? Purpose of history-trend / history-module is to provide a mean to gain visibility over time :
+* setup a server to store daily reports
+* query reports history with adapted queries
+
+To be continued ...
+
 
 Test
 ------------

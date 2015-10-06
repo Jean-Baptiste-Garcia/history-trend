@@ -379,7 +379,7 @@ describe('history-trend', function () {
         });
     });
 
-    describe('history-trend as documended in Readme', function () {
+    describe('Readme', function () {
         it('works with simple data flux', function () {
             var data = [
                 {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
@@ -391,6 +391,33 @@ describe('history-trend', function () {
                 {date: new Date('2015-12-02T03:22:00'), issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
             ]);
+        });
+        it('works with timeserie examples', function () {
+            var reports = [
+                { date: new Date('1995-12-17T03:24:00'), sessions: 100, disk: {free: 2000, used: 1000}},
+                { date: new Date('1995-12-18T03:24:00'), sessions: 110, disk: {free: 1500, used: 1500}},
+                { date: new Date('1995-12-20T03:24:00'), sessions: 120, disk: {free: 1000, used: 2000}}
+            ];
+            H.timeserie('sessions').data(reports).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), sessions: 100},
+                { date: new Date('1995-12-18T03:24:00'), sessions: 110},
+                { date: new Date('1995-12-20T03:24:00'), sessions: 120}
+            ]);
+            H.timeserie('disk.used').data(reports).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), used: 1000},
+                { date: new Date('1995-12-18T03:24:00'), used: 1500},
+                { date: new Date('1995-12-20T03:24:00'), used: 2000}
+            ]);
+
+            function diskUsageRatio(report) {
+                return report.disk.used / (report.disk.free + report.disk.used);
+            }
+            H.timeserie(diskUsageRatio).data(reports).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), diskUsageRatio: 0.3333333333333333},
+                { date: new Date('1995-12-18T03:24:00'), diskUsageRatio: 0.5},
+                { date: new Date('1995-12-20T03:24:00'), diskUsageRatio: 0.6666666666666666}
+            ]);
+
         });
     });
 });
