@@ -27,32 +27,46 @@ As an example, we consider history of issues present in a backlog. One wants to 
 ```javascript
  var H = require('history-trend'),
      reports = [
-            {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
-            {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}]},
-            {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}]}];
+{date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', type: 'Feature'}, { key: 'JIRA-456', status: 'In Progress', type: 'Bug'}]},
+{date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'In Progress', type: 'Bug'}]},
+{date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'Done', type: 'Bug'}, { key: 'JIRA-900', type: 'Bug', status: 'Done'}, { key: 'JIRA-901', status: 'Done', type: 'Bug'}]}];
 
-```
-issuing
-```javascript
 H.flux('issues').data(reports);
-
-```
-will return
-```javascript
+// returns
 [
  {date: 'Tue Dec 01 2015 04:24:00', issues: { added: ['JIRA-123', 'JIRA-456'], removed: [], modified: [], identical: []}},
  {date: 'Wed Dec 02 2015 04:22:00', issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
  {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
  ]
+```
+#### Function based flux
+It is possible to use function instead of named property. For instance, if one is only interested in flux of bugs :
+```javascript
+function bugs(report) {
+    return report.issues.filter(function (issue) {return issue.type === 'Bug'; });
+}
+
+H.flux(bugs).data(reports);
+// returns
+[
+    {date: new Date('2015-12-01T03:24:00'), bugs: { added: ['JIRA-456'], removed: [], modified: [], identical: []}},
+    {date: new Date('2015-12-02T03:22:00'), bugs: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: [], identical: []}},
+    {date: new Date('2015-12-03T03:30:00'), bugs: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: []}}
+]
 
 ```
-It is possible to change identification method:
+Note that name of trend is function name (bugs in our example). When function is anonymous, then trend is named 'value'.
 
+
+#### Identification method
+By default, when computing flux on object arrays, two objects are said to be identical when
+1. They have same key property value
+2. All others properties have same value
+
+1st condition is called identification method. 2nd condition tells whether objects have been modified or not.
+It is possible to change identification method. For instance if issues are identified by ```id``` property :
 ```javascript
-H.flux({name: 'issues',
-        // using property 'id' instead of 'key'
-        identification: 'id'
-       }).data(reports);
+H.flux('issues', 'id').data(reports);
 ```
 
 ### Timeserie
@@ -128,7 +142,11 @@ It is possible to chain all trends so that several trends can be computed in one
 ```javascript
 var H = require('history-trend');
 
-H.count('issues').flux('issues').timeserie('workload').data(source.stream(), function (err, trends){} );
+H.
+    count('issues').
+    flux('issues').
+    timeserie('workload').
+    data(source.stream(), function (err, trends){} );
 ```
 
 Use Case
