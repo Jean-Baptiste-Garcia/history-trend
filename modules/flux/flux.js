@@ -13,29 +13,24 @@ module.exports = function FLux(getter, options) {
     'use strict';
     var diff,
         lastValue,
-        config = { out: {
+        option = options || {},
+        transformation = R.merge({
             added: R.identity,
             removed: R.identity,
             modified: R.identity,
             identical: R.identity
-        }},
-        option = options || {};
+        }, option);
 
-    config.identification = option.identification;
-    config.out.added = option.added || config.out.added;
-    config.out.removed = option.deleted || config.out.removed;
-    config.out.modified = option.modified || config.out.modified;
-    config.out.identical = option.identical || config.out.identical;
 
     return function flux(report) {
         var currentValue = getter(report),
             fluxValue;
         if (!diff) {
-            diff =  (currentValue instanceof Array) ? new DiffArray(config.identification) : new DiffObject();
+            diff =  (currentValue instanceof Array) ? new DiffArray(option.identification) : new DiffObject();
         }
         fluxValue = diff(lastValue, currentValue);
         lastValue = currentValue;
-        return R.evolve(config.out)(fluxValue);
+        return R.evolve(transformation)(fluxValue);
     };
 
 };
