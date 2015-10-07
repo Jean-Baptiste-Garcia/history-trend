@@ -87,6 +87,33 @@ H.flux('issues',{
  ]
 ```
 
+### Object Flux
+In case you need to compute flux on object. In below example, objects to compare have username as key and an array of resources as value.
+fluxObj compares key/values of each object and :
+1. when a key is only present in one object, key is considered as added or removed
+2. when a key is present in both objects, key is considered as identical or modified, depending of the comparison of their respective value..
+
+
+```javascript
+ var reports = [
+    {date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a'], user2: ['b'] }},
+    {date: new Date('1995-12-18T03:24:00'), schemas: { user1: ['a'], user3: ['c'] }},
+    {date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
+];
+
+H.fluxObj('schemas').data(reports);
+
+//returns
+[
+    {date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+    {date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+    {date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
+]
+
+As for standard flux, it is possible to access nested properties or to use custom function to access objects to be compared.
+
+```
+
 ### Timeserie
 Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
 

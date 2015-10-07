@@ -260,6 +260,22 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
         });
+
+        it('should work with custom function', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), status : {schemas: { user1: ['a'], user2: ['b'] }}},
+                { date: new Date('1995-12-18T03:24:00'), status : {schemas: { user1: ['a'], user3: ['c'] }}},
+                { date: new Date('1995-12-20T03:24:00'), status : {schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}}
+            ];
+
+            function schemas(report) {return report.status.schemas; }
+
+            H.fluxObj(schemas).data(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
+            ]);
+        });
     });
 
     // TODO add tests on non existing properties
