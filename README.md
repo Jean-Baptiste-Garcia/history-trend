@@ -68,7 +68,7 @@ By default, when computing flux on object arrays, two objects are said to be ide
 
 It is possible to change identification method. For instance, if issues are identified by ```id``` property, use :
 ```javascript
-H.flux('issues', 'id').data(reports);
+H.flux('issues', {identification: 'id'}).data(reports);
 ```
 
 #### Custom output

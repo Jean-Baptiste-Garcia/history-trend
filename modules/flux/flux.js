@@ -21,15 +21,11 @@ module.exports = function FLux(getter, options) {
         }},
         option = options || {};
 
-    if (typeof option === 'string') {
-        config.identification = option;
-    } else {
-        config.identification = option.identification;
-        config.out.added = option.added || config.out.added;
-        config.out.removed = option.deleted || config.out.removed;
-        config.out.modified = option.modified || config.out.modified;
-        config.out.identical = option.identical || config.out.identical;
-    }
+    config.identification = option.identification;
+    config.out.added = option.added || config.out.added;
+    config.out.removed = option.deleted || config.out.removed;
+    config.out.modified = option.modified || config.out.modified;
+    config.out.identical = option.identical || config.out.identical;
 
     return function flux(report) {
         var currentValue = getter(report),
