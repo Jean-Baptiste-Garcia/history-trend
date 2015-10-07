@@ -122,9 +122,9 @@ describe('history-trend', function () {
     describe('timeserie with custom function h.f(g).data(d)', function () {
         it('can count array length', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ],
                 countadded = function (item) {
                     return item.schemas.added.length;
@@ -221,43 +221,43 @@ describe('history-trend', function () {
     describe('flux on object h.f(k).data(d)', function () {
         it('should work on simple data', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: { jbg: ['a'], cgu: ['b'] }},
-                { date: new Date('1995-12-18T03:24:00'), schemas: { jbg: ['a'], toto: ['c'] }},
-                { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}
+                { date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a'], user2: ['b'] }},
+                { date: new Date('1995-12-18T03:24:00'), schemas: { user1: ['a'], user3: ['c'] }},
+                { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
             ];
 
             H.fluxObj('schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
         });
 
         it('should work on nested objects for equality (deepEqual)', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: { jbg: ['a', { name: 'hello', gloup: 'glop'}], cgu: ['b'] }},
-                { date: new Date('1995-12-18T03:24:00'), schemas: { jbg: ['a', { name: 'hello', gloup: 'glop'}], toto: ['c'] }},
-                { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['a', { name: 'hello', gloup: 'glup'}], cgu: ['b'], toto: ['c', {msg: 'diff'}] }}
+                { date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a', { name: 'hello', gloup: 'glop'}], user2: ['b'] }},
+                { date: new Date('1995-12-18T03:24:00'), schemas: { user1: ['a', { name: 'hello', gloup: 'glop'}], user3: ['c'] }},
+                { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['a', { name: 'hello', gloup: 'glup'}], user2: ['b'], user3: ['c', {msg: 'diff'}] }}
             ];
 
             H.fluxObj('schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: [], modified: ['jbg', 'toto']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: [], modified: ['user1', 'user3']}}
             ]);
         });
 
         it('should work on nested object', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), status : {schemas: { jbg: ['a'], cgu: ['b'] }}},
-                { date: new Date('1995-12-18T03:24:00'), status : {schemas: { jbg: ['a'], toto: ['c'] }}},
-                { date: new Date('1995-12-20T03:24:00'), status : {schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}}
+                { date: new Date('1995-12-17T03:24:00'), status : {schemas: { user1: ['a'], user2: ['b'] }}},
+                { date: new Date('1995-12-18T03:24:00'), status : {schemas: { user1: ['a'], user3: ['c'] }}},
+                { date: new Date('1995-12-20T03:24:00'), status : {schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}}
             ];
 
             H.fluxObj('status.schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
         });
     });
@@ -347,9 +347,9 @@ describe('history-trend', function () {
     describe('count h.f(k).data(d)', function () {
         it('should count array length', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ];
             H.count('schemas.added').data(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), added: 2},
@@ -385,9 +385,9 @@ describe('history-trend', function () {
 
         it('should work on count', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
-                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
-                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ], results =
                 H.count('schemas.added').count('schemas.removed').data(data);
 
@@ -400,9 +400,9 @@ describe('history-trend', function () {
 
         it('compose on flux h.f(k).f(k).data(h.f(k).data(d))', function () {
             var data = [
-                { date: new Date('1995-12-17T03:24:00'), schemas: { jbg: ['a'], cgu: ['b'] }},
-                { date: new Date('1995-12-18T03:24:00'), schemas: { jbg: ['a'], toto: ['c'] }},
-                { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}
+                { date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a'], user2: ['b'] }},
+                { date: new Date('1995-12-18T03:24:00'), schemas: { user1: ['a'], user3: ['c'] }},
+                { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
             ],
                 results = H.count('schemas.added').count('schemas.removed').data(H.fluxObj('schemas').data(data));
 
