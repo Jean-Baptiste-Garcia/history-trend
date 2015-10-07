@@ -145,8 +145,8 @@ module.exports = (function () {
         // make public (chained) Trend function
         // which simply pushes an action and returns chain
         function makeChainedTrend(Trend) {
-            return function (field, options) {
-                actions.push({name: trendName(field), reporter: new Trend(makeGetter(field), options || [])});
+            return function (field, option) {
+                actions.push({name: trendName(field), reporter: new Trend(makeGetter(field), option)});
                 return chain;
             };
         }
@@ -161,9 +161,8 @@ module.exports = (function () {
         // first functions called by user when using HistoryTrend
         // then chained functions are called (see Chain imp)
         function makePublicTrend(Trend, key) {
-            return function publicTrend(field) {
-                var options = Array.prototype.slice.call(arguments, 1); // options are passed in an array, without field 0th arg
-                return new Chain(Trends)[key](field, options);
+            return function publicTrend(field, option) {
+                return new Chain(Trends)[key](field, option);
             };
         }
         return R.mapObjIndexed(makePublicTrend)(Trends);

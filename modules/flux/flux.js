@@ -19,7 +19,7 @@ module.exports = function FLux(getter, options) {
             modified: R.identity,
             identical: R.identity
         }},
-        option = ((options || [])[0] || {});
+        option = options || {};
 
     if (typeof option === 'string') {
         config.identification = option;
