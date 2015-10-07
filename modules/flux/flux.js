@@ -6,22 +6,40 @@
 /*jslint node: true */
 
 var DiffArray = require('../x-array/x-array'),
-    DiffObject = require('../x-object/x-object');
+    DiffObject = require('../x-object/x-object'),
+    R = require('ramda');
 
 module.exports = function FLux(getter, options) {
     'use strict';
     var diff,
-        lastValue;
+        lastValue,
+        config = { out: {
+            added: R.identity,
+            removed: R.identity,
+            modified: R.identity,
+            identical: R.identity
+        }},
+        option = ((options || [])[0] || {});
+
+    if (typeof option === 'string') {
+        config.identification = option;
+    } else {
+        config.identification = option.identification;
+        config.out.added = option.added || config.out.added;
+        config.out.removed = option.deleted || config.out.removed;
+        config.out.modified = option.modified || config.out.modified;
+        config.out.identical = option.identical || config.out.identical;
+    }
 
     return function flux(report) {
         var currentValue = getter(report),
             fluxValue;
         if (!diff) {
-            diff =  (currentValue instanceof Array) ? new DiffArray(options[0]) : new DiffObject();
+            diff =  (currentValue instanceof Array) ? new DiffArray(config.identification) : new DiffObject();
         }
         fluxValue = diff(lastValue, currentValue);
         lastValue = currentValue;
-        return fluxValue;
+        return R.evolve(config.out)(fluxValue);
     };
 
 };

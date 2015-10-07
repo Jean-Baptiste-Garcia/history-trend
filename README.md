@@ -71,6 +71,23 @@ It is possible to change identification method. For instance, if issues are iden
 H.flux('issues', 'id').data(reports);
 ```
 
+#### Custom output
+If you are focused on what is added/removed, then you might be only interested in number of identical and to spare some memory/bandwitdh.
+
+You can define function to be applied on identical/modified/added/removed before flux returns :
+```javascript
+H.flux('issues',{
+    identical: function (identicals) { return identicals.length; }
+ }).data(reports);
+// returns
+[
+ {date: 'Tue Dec 01 2015 04:24:00', issues: { added: ['JIRA-123', 'JIRA-456'], removed: [], modified: [], identical: 0}},
+ {date: 'Wed Dec 02 2015 04:22:00', issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: 0}},
+ {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: 1}}
+ ]
+```
+
+
 ### Timeserie
 Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
 
