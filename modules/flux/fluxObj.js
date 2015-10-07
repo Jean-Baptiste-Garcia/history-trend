@@ -1,25 +1,24 @@
 /**
-* Construct a flux of arrays
+* Construct a flux of objects
 * return {added:[a,b], removed:[], identical:[z], modified:[x]}
 */
 
 /*jslint node: true */
 
-var DiffArray = require('../x-array/x-array'),
+var DiffObject = require('../x-object/x-object'),
     R = require('ramda');
 
-module.exports = function FLux(getter, options) {
+module.exports = function FLuxObj(getter, options) {
     'use strict';
-    var option = options || {},
+    var diff = new DiffObject(),
+        option = options || {},
         transformation = R.merge({
             added: R.identity,
             removed: R.identity,
             modified: R.identity,
             identical: R.identity
         }, option),
-        diff = new DiffArray(option.identification),
         lastValue;
-
 
     return function flux(report) {
         var currentValue = getter(report),

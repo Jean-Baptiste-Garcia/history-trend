@@ -20,7 +20,7 @@ $ npm install history-trend
 Usage
 -----
 ### Flux
-Flux compares two consecutive report versions and returns added/removed/identical/modified. Array or Object can be compared. By default, objects are identified by 'key' property.
+Flux compares two arrays in consecutive versions and returns added/removed/identical/modified. By default, objects in Array are identified by 'key' property.
 
 As an example, we consider history of issues present in a backlog. One wants to know which issues have been added / removed.
 
@@ -61,7 +61,7 @@ Note that name of trend is function name (bugs in our example). When function is
 #### Identification method
 By default, when computing flux on object arrays, two objects are said to be identical when
 
-1. They have same key property value
+1. They have same *key* property value
 2. All others properties have same value
 
 1st condition is called identification method. 2nd condition tells whether objects have been modified or not.
@@ -72,7 +72,7 @@ H.flux('issues', {identification: 'id'}).data(reports);
 ```
 
 #### Custom output
-If you are focused on what is added/removed, then you might be only interested in number of identical and to spare some memory/bandwitdh.
+If you are focused on what is added/removed, then you might be only interested in number of identical.
 
 You can define function to be applied on identical/modified/added/removed before flux returns :
 ```javascript
@@ -86,7 +86,6 @@ H.flux('issues',{
  {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: 1}}
  ]
 ```
-
 
 ### Timeserie
 Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
@@ -120,7 +119,7 @@ H.timeserie('disk.used').data(reports)
 ]
 ```
 
-And it is possible to use any function that operates on a report :
+And, it is possible to use any function that operates on a report :
 ```javascript
  function diskUsageRatio(report) {
     return report.disk.used / (report.disk.free + report.disk.used);
@@ -135,7 +134,7 @@ H.timeserie(diskUsageRatio).data(reports);
     { date: new Date('1995-12-20T03:24:00'), diskUsageRatio: 0.6666666666666666}
 ]
 ```
-Using custom functions is specially convenient when reports are raw and you focus on consolidated data.
+Using custom functions is specially convenient when reports are raw and you need to focus on consolidated data.
 
 ### Count
 Count simply returns length of an array.

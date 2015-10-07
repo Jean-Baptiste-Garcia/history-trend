@@ -7,6 +7,7 @@ module.exports = (function () {
         TimeSerie = require('./modules/timeserie/timeserie'),
         Count = require('./modules/count/count'),
         Flux = require('./modules/flux/flux'),
+        FLuxObj  = require('./modules/flux/fluxObj'),
         Chain;
 
 
@@ -168,5 +169,5 @@ module.exports = (function () {
         return R.mapObjIndexed(makePublicTrend)(Trends);
     }
 
-    return init({timeserie: TimeSerie, flux: Flux, count: Count});
+    return init({timeserie: TimeSerie, flux: Flux, fluxObj: FLuxObj,  count: Count});
 }());

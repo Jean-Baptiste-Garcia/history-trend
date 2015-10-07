@@ -226,7 +226,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}
             ];
 
-            H.flux('schemas').data(data).should.eql([
+            H.fluxObj('schemas').data(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
@@ -240,7 +240,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['a', { name: 'hello', gloup: 'glup'}], cgu: ['b'], toto: ['c', {msg: 'diff'}] }}
             ];
 
-            H.flux('schemas').data(data).should.eql([
+            H.fluxObj('schemas').data(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: [], modified: ['jbg', 'toto']}}
@@ -254,7 +254,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), status : {schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}}
             ];
 
-            H.flux('status.schemas').data(data).should.eql([
+            H.fluxObj('status.schemas').data(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['jbg', 'cgu'], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['toto'], removed: ['cgu'], identical: ['jbg'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['cgu'], removed: [], identical: ['toto'], modified: ['jbg']}}
@@ -404,7 +404,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-18T03:24:00'), schemas: { jbg: ['a'], toto: ['c'] }},
                 { date: new Date('1995-12-20T03:24:00'), schemas: { jbg: ['b'], cgu: ['b'], toto: ['c'] }}
             ],
-                results = H.count('schemas.added').count('schemas.removed').data(H.flux('schemas').data(data));
+                results = H.count('schemas.added').count('schemas.removed').data(H.fluxObj('schemas').data(data));
 
             results.should.eql([
                 { date: new Date('1995-12-17T03:24:00'), added: 2, removed: 0},
