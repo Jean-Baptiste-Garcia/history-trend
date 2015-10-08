@@ -280,7 +280,7 @@ describe('history-trend', function () {
 
     // TODO add tests on non existing properties
 
-    describe('flux on array h.f(k, d)', function () {
+    describe('flux on array h.f(k).data(d)', function () {
         it('should work on nominal data', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
@@ -430,8 +430,8 @@ describe('history-trend', function () {
         });
     });
 
-    describe('Readme', function () {
-        it('works with simple data flux', function () {
+    describe('Readme example', function () {
+        it('is valid for simple data flux', function () {
             var reports = [
                 {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', type: 'Feature'}, { key: 'JIRA-456', status: 'In Progress', type: 'Bug'}]},
                 {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'In Progress', type: 'Bug'}]},
@@ -452,14 +452,14 @@ describe('history-trend', function () {
                 {date: new Date('2015-12-02T03:22:00'), bugs: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: [], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), bugs: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: []}}
             ]);
-
         });
-        it('works with timeserie examples', function () {
+        it('is valid for timeserie examples', function () {
             var reports = [
                 { date: new Date('1995-12-17T03:24:00'), sessions: 100, disk: {free: 2000, used: 1000}},
                 { date: new Date('1995-12-18T03:24:00'), sessions: 110, disk: {free: 1500, used: 1500}},
                 { date: new Date('1995-12-20T03:24:00'), sessions: 120, disk: {free: 1000, used: 2000}}
             ];
+
             H.timeserie('sessions').data(reports).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessions: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessions: 110},
@@ -479,7 +479,28 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-18T03:24:00'), diskUsageRatio: 0.5},
                 { date: new Date('1995-12-20T03:24:00'), diskUsageRatio: 0.6666666666666666}
             ]);
-
         });
+
+        it('is valid for chaining', function () {
+            var reports = [
+                {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', type: 'Feature'}, { key: 'JIRA-456', status: 'In Progress', type: 'Bug'}]},
+                {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'In Progress', type: 'Bug'}]},
+                {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'Done', type: 'Bug'}, { key: 'JIRA-900', type: 'Bug', status: 'Done'}, { key: 'JIRA-901', status: 'Done', type: 'Bug'}]}];
+
+            function bugsCount(report) {
+                return report.issues.filter(function (item) {return item.type === 'Bug'; }).length;
+            }
+
+            function featuresCount(report) {
+                return report.issues.filter(function (item) {return item.type === 'Feature'; }).length;
+            }
+
+            H.timeserie(bugsCount).flux('issues').timeserie(featuresCount).data(reports).should.eql([
+                {date: new Date('2015-12-01T03:24:00'), bugsCount: 1, featuresCount: 1, issues: { added: ['JIRA-123', 'JIRA-456'], removed: [], modified: [], identical: []}},
+                {date: new Date('2015-12-02T03:22:00'), bugsCount: 1, featuresCount: 1, issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
+                {date: new Date('2015-12-03T03:30:00'), bugsCount: 3, featuresCount: 1, issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
+            ]);
+        });
+
     });
 });
