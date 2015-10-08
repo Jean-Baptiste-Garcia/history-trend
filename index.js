@@ -64,14 +64,14 @@ module.exports = (function () {
     Chain = function (Trends) {
         var chain,
             actions = [],
-            datefield = 'date',
+            datekey = 'date',
             dategetter = function (report) { return report.date; },
             trends;
 
         function beginTrends(customdate) {
             if (customdate) {
                 dategetter = makeGetter(customdate);
-                datefield = trendName(customdate, 'date');
+                datekey = trendName(customdate, 'date');
             }
 
             (function uniqueTrendNames() {
@@ -82,7 +82,7 @@ module.exports = (function () {
                 ),
                     moreThanOnce = moreThanOnceCounter(actions);
 
-                // rename duplicates v1, v2, v3
+                // rename duplicates value, value, value --> value1, value2, value3
                 actions = actions.map(function (action) {
                     var naction = R.clone(action);
                     naction.trendName = action.name;
@@ -97,13 +97,13 @@ module.exports = (function () {
             trends = [];
         }
 
-        function trendValue(report) {
+        function trendsValue(report) {
             var trendItem = {};
 
-            trendItem[datefield] = dategetter(report);
+            trendItem[datekey] = dategetter(report);
 
             actions.forEach(function (action) {
-                trendItem[action.trendName] = action.reporter(report);
+                trendItem[action.trendName] = action.trendvalue(report);
             });
 
             trends.push(trendItem);
@@ -117,14 +117,14 @@ module.exports = (function () {
 
         function syncCompute(reports, customdate) {
             beginTrends(customdate);
-            reports.forEach(trendValue);
+            reports.forEach(trendsValue);
             return endTrends();
         }
 
         function streamCompute(stream, cb) {
             var lasterror;
             beginTrends(stream.customdate);
-            stream.on('data', trendValue);
+            stream.on('data', trendsValue);
 
             stream.on('error', function (err) {lasterror = err; });
 
@@ -135,19 +135,18 @@ module.exports = (function () {
         }
 
         // function that ends current chain
-        // execute computation
+        // performs computation
         function compute(data, cb) {
             return data instanceof Readable ?
                     streamCompute(data, cb) :
                     syncCompute(data, cb);
         }
 
-
         // make public (chained) Trend function
         // which simply pushes an action and returns chain
         function makeChainedTrend(Trend) {
             return function (field, option) {
-                actions.push({name: trendName(field), reporter: new Trend(makeGetter(field), option)});
+                actions.push({name: trendName(field), trendvalue: new Trend(makeGetter(field), option)});
                 return chain;
             };
         }
