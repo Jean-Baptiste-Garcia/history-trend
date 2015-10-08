@@ -27,8 +27,8 @@ module.exports = function (optKey) {
         var identical;
 
         if (!a) {
-            // first comparison -- all are considered as added
-            return {added: idOnly(b), removed: [], identical: [], modified: []};
+            // first comparison -- is meaningless -- all are considered as empty
+            return {added: [], removed: [], identical: [], modified: []};
         }
 
 

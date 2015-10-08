@@ -289,7 +289,7 @@ describe('history-trend', function () {
             ];
 
             H.flux('issues').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
             ]);
@@ -303,7 +303,7 @@ describe('history-trend', function () {
             ];
 
             H.flux('issues').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), issues: {added: ['JIRA-456', 'JIRA-123'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
             ]);
@@ -317,7 +317,7 @@ describe('history-trend', function () {
             ];
 
             H.flux('issues', {identification: 'id'}).data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
             ]);
@@ -334,7 +334,7 @@ describe('history-trend', function () {
                 identical: function (identicals) { return identicals.length; },
                 modified:  function (modifieds) { return modifieds.length; }
             }).data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: 0, modified: 0}},
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
             ]);
@@ -352,7 +352,7 @@ describe('history-trend', function () {
                 identical: function (identicals) { return identicals.length; },
                 modified:  function (modifieds) { return modifieds.length; }
             }).data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: 0, modified: 0}},
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
             ]);
@@ -431,6 +431,7 @@ describe('history-trend', function () {
     });
 
     describe('Readme example', function () {
+
         it('is valid for simple data flux', function () {
             var reports = [
                 {date: new Date('2015-12-01T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', type: 'Feature'}, { key: 'JIRA-456', status: 'In Progress', type: 'Bug'}]},
@@ -438,7 +439,7 @@ describe('history-trend', function () {
                 {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'Done', type: 'Bug'}, { key: 'JIRA-900', type: 'Bug', status: 'Done'}, { key: 'JIRA-901', status: 'Done', type: 'Bug'}]}];
 
             H.flux('issues').data(reports).should.eql([
-                {date: new Date('2015-12-01T03:24:00'), issues: { added: ['JIRA-123', 'JIRA-456'], removed: [], modified: [], identical: []}},
+                {date: new Date('2015-12-01T03:24:00'), issues: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
             ]);
@@ -448,11 +449,12 @@ describe('history-trend', function () {
             }
 
             H.flux(bugs).data(reports).should.eql([
-                {date: new Date('2015-12-01T03:24:00'), bugs: { added: ['JIRA-456'], removed: [], modified: [], identical: []}},
+                {date: new Date('2015-12-01T03:24:00'), bugs: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), bugs: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: [], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), bugs: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: []}}
             ]);
         });
+
         it('is valid for timeserie examples', function () {
             var reports = [
                 { date: new Date('1995-12-17T03:24:00'), sessions: 100, disk: {free: 2000, used: 1000}},
@@ -496,7 +498,7 @@ describe('history-trend', function () {
             }
 
             H.timeserie(bugsCount).flux('issues').timeserie(featuresCount).data(reports).should.eql([
-                {date: new Date('2015-12-01T03:24:00'), bugsCount: 1, featuresCount: 1, issues: { added: ['JIRA-123', 'JIRA-456'], removed: [], modified: [], identical: []}},
+                {date: new Date('2015-12-01T03:24:00'), bugsCount: 1, featuresCount: 1, issues: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), bugsCount: 1, featuresCount: 1, issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), bugsCount: 3, featuresCount: 1, issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
             ]);

@@ -253,7 +253,7 @@ describe('history-trend on fs store', function () {
                             done(err);
                         }
                         timeserie.should.eql([
-                            { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []}},
+                            { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: [], removed: [], identical: [], modified: []}},
                             { date: new Date('1995-12-18T03:24:00'), x: 2, issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                             { date: new Date('1995-12-20T03:24:00'), x: 3, issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
                         ]);
@@ -284,7 +284,7 @@ describe('history-trend on fs store', function () {
                             done(err);
                         }
                         timeserie.should.eql([
-                            { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: ['JIRA-123', 'JIRA-456'], removed: [], identical: 0, modified: 0}},
+                            { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: [], removed: [], identical: 0, modified: 0}},
                             { date: new Date('1995-12-18T03:24:00'), x: 2, issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                             { date: new Date('1995-12-20T03:24:00'), x: 3, issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
                         ]);
