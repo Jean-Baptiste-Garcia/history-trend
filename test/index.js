@@ -227,7 +227,7 @@ describe('history-trend', function () {
             ];
 
             H.fluxObj('schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
@@ -241,7 +241,7 @@ describe('history-trend', function () {
             ];
 
             H.fluxObj('schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: [], modified: ['user1', 'user3']}}
             ]);
@@ -255,7 +255,7 @@ describe('history-trend', function () {
             ];
 
             H.fluxObj('status.schemas').data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
@@ -271,7 +271,7 @@ describe('history-trend', function () {
             function schemas(report) {return report.status.schemas; }
 
             H.fluxObj(schemas).data(data).should.eql([
-                { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ]);
@@ -423,7 +423,7 @@ describe('history-trend', function () {
                 results = H.count('schemas.added').count('schemas.removed').data(H.fluxObj('schemas').data(data));
 
             results.should.eql([
-                { date: new Date('1995-12-17T03:24:00'), added: 2, removed: 0},
+                { date: new Date('1995-12-17T03:24:00'), added: 0, removed: 0},
                 { date: new Date('1995-12-18T03:24:00'), added: 1, removed: 1},
                 { date: new Date('1995-12-20T03:24:00'), added: 1, removed: 0}
             ]);

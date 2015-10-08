@@ -20,7 +20,7 @@ module.exports = function diff() {
         function identicalObjects(key) { return R.equals(a[key], b[key]); }
 
         if (!a) {
-            return {added: Object.keys(b), removed: [], identical: [], modified: []};
+            return {added: [], removed: [], identical: [], modified: []};
         }
 
         akeys = Object.keys(a);

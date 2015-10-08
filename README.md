@@ -105,12 +105,12 @@ H.fluxObj('schemas').data(reports);
 
 //returns
 [
-    {date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
+    {date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
     {date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
     {date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
 ]
 ```
-As standard flux, it is possible to access nested properties or to use custom function to access objects to be compared.
+As standard flux, it is possible to use custom function to access objects to be compared.
 
 ### Timeserie
 Timeserie is a convenient way extract one property but also to proceed to some computations, like consolidation.
