@@ -53,7 +53,6 @@ H.flux(bugs).data(reports);
     {date: new Date('2015-12-02T03:22:00'), bugs: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: [], identical: []}},
     {date: new Date('2015-12-03T03:30:00'), bugs: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: []}}
 ]
-
 ```
 Note that name of trend is function name (bugs in our example). When function is anonymous, then trend is named 'value'.
 
@@ -61,10 +60,10 @@ Note that name of trend is function name (bugs in our example). When function is
 #### Identification method
 By default, when computing flux on object arrays, two objects are said to be identical when
 
-1. They have same *key* property value
-2. All others properties have same value
+  1. They have same value for *key* property
+  2. All others properties have same value
 
-1st condition is called identification method. 2nd condition tells whether objects have been modified or not.
+1st condition is called identification method. 2nd condition is equality method. It tells whether objects have been modified or not.
 
 It is possible to change identification method. For instance, if issues are identified by ```id``` property, use :
 ```javascript
@@ -72,9 +71,9 @@ H.flux('issues', {identification: 'id'}).data(reports);
 ```
 
 #### Custom output
-If you are focused on what is added/removed, then you might be only interested in number of identical.
+If you focus on movements (added/removed/modified), then you might be only interested in number of identical.
 
-You can define function to be applied on identical/modified/added/removed before flux returns :
+You can define functions to be applied on identical/modified/added/removed before flux returns :
 ```javascript
 H.flux('issues',{
     identical: function (identicals) { return identicals.length; }
@@ -88,10 +87,11 @@ H.flux('issues',{
 ```
 
 ### Object Flux
-In case you need to compute flux on object. In below example, objects to compare have username as key and an array of resources as value.
+In case you need to compute flux on Map like object. In below example, objects to compare have username as key and an array of resources as value.
 fluxObj compares key/values of each object and :
-1. when a key is only present in one object, key is considered as added or removed
-2. when a key is present in both objects, key is considered as identical or modified, depending of the comparison of their respective value..
+
+  1. when a key is only present in one object, key is considered as added or removed
+  2. when a key is present in both objects, key is considered as identical or modified, depending of the comparison of their respective value..
 
 
 ```javascript
@@ -109,14 +109,11 @@ H.fluxObj('schemas').data(reports);
     {date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
     {date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
 ]
-
-As for standard flux, it is possible to access nested properties or to use custom function to access objects to be compared.
-
 ```
+As standard flux, it is possible to access nested properties or to use custom function to access objects to be compared.
 
 ### Timeserie
-Timeserie is a convenient way to pick only useful information and even to proceed to some computations, like consolidation.
-
+Timeserie is a convenient way extract one property but also to proceed to some computations, like consolidation.
 
 ```javascript
 var H = require('history-trend'),
