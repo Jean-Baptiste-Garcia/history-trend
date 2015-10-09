@@ -220,7 +220,8 @@ describe('history-trend on fs store', function () {
         });
 
         it('can compute timeserie h.f(k).data(stream)', function (done) {
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+            var q = H.timeserie('status.sessionCount');
+            q.data(hs.stream(), function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -230,6 +231,31 @@ describe('history-trend on fs store', function () {
                     { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
                 ]);
                 done();
+            });
+        });
+
+        it('h.f(k) can be used twice', function (done) {
+            var q = H.timeserie('status.sessionCount');
+            q.data(hs.stream(), function (err, timeserie) {
+                if (err) {
+                    done(err);
+                }
+                timeserie.should.eql([
+                    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                    { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
+                    { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
+                ]);
+                q.data(hs.stream(), function (err, timeserie) {
+                    if (err) {
+                        done(err);
+                    }
+                    timeserie.should.eql([
+                        { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                        { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
+                        { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
+                    ]);
+                    done();
+                });
             });
         });
     });
@@ -296,3 +322,61 @@ describe('history-trend on fs store', function () {
     });
 });
 
+describe('cached history-trend on fs store', function () {
+    describe('with default streams', function () {
+
+        var hs;
+
+        beforeEach(function startAndPopulateServer(done) {
+            fse.removeSync(path.resolve(storageRoot));
+            hs = historystore(storageRoot).report('MyServer');
+
+            var reports = [
+                    { date: new Date('1995-12-17T03:24:00'), status: {sessionCount: 100, schemasCount: 10}},
+                    { date: new Date('1995-12-18T04:44:10'), status: {sessionCount: 101, schemasCount: 5}},
+                    { date: new Date('1995-12-19T05:44:10'), status: {sessionCount: 102, schemasCount: 20}}
+                ];
+            async.series(reports.map(function makePut(report) {
+                return function put(callback) {
+                    hs.put(report, callback);
+                };
+            }), done);
+        });
+
+        it('can compute timeserie h.f(k).data(stream)', function (done) {
+            function cache(query, store) {
+                return function (cb) {
+                    query.data(store.stream(), cb);
+                };
+            }
+            var q = H.timeserie('status.sessionCount'),
+                trends,
+                cached = cache(q, hs);
+
+            cached(function (err, timeserie) {
+                if (err) {
+                    done(err);
+                    return;
+                }
+                timeserie.should.eql([
+                    { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                    { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
+                    { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
+                ]);
+                trends = timeserie;
+
+                cached(function (err2, timeserie) {
+                    console.log('here');
+                    if (err2) {
+                        done(err2);
+                        return;
+                    }
+                    console.log(trends === timeserie);
+
+                    done();
+                });
+            });
+
+        });
+    });
+});

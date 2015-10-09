@@ -65,82 +65,74 @@ module.exports = (function () {
         var chain,
             actions = [],
             datekey = 'date',
-            dategetter = function (report) { return report.date; },
-            trends;
+            dategetter = function (report) { return report.date; };
 
-        function beginTrends(customdate) {
-            if (customdate) {
-                dategetter = makeGetter(customdate);
-                datekey = trendName(customdate, 'date');
+        function compute(data, cb) {
+            var namedactions,
+                trends = [];
+
+            function initTrends(customdate) {
+                if (customdate) {
+                    dategetter = makeGetter(customdate);
+                    datekey = trendName(customdate, 'date');
+                }
+
+                namedactions = (function uniqueTrendNames() {
+                    var moreThanOnceCounter = R.compose(
+                        R.mapObj(function (count) { return count > 1 ? 1 : 0; }), // 0 means unique , 1 means more than once
+                        R.countBy(R.prop('name')) // count number of actions with same name
+                    ),
+                        moreThanOnce = moreThanOnceCounter(actions);
+
+                    // rename duplicates value, value, value --> value1, value2, value3
+                    return actions.map(function (action) {
+                        var namedaction = R.clone(action);
+                        namedaction.trendname = action.name;
+                        if (moreThanOnce[action.name] > 0) {
+                            namedaction.trendname += moreThanOnce[action.name];
+                            moreThanOnce[action.name] += 1; // now moreThanOnce is used as a counter
+                        }
+                        return namedaction;
+                    });
+                }());
+
+                trends = [];
             }
 
-            (function uniqueTrendNames() {
+            function trendsValue(report) {
+                var trendItem = {};
 
-                var moreThanOnceCounter = R.compose(
-                    R.mapObj(function (count) { return count > 1 ? 1 : 0; }), // 0 means unique , 1 means more than once
-                    R.countBy(R.prop('name')) // count number of actions with same name
-                ),
-                    moreThanOnce = moreThanOnceCounter(actions);
-
-                // rename duplicates value, value, value --> value1, value2, value3
-                actions = actions.map(function (action) {
-                    var naction = R.clone(action);
-                    naction.trendName = action.name;
-                    if (moreThanOnce[action.name] > 0) {
-                        naction.trendName += moreThanOnce[action.name];
-                        moreThanOnce[action.name] += 1; // now moreThanOnce is used as a counter
-                    }
-                    return naction;
+                trendItem[datekey] = dategetter(report);
+                namedactions.forEach(function (action, index) {
+                    trendItem[action.trendname] = action.trendvalue(report);
                 });
-            }());
 
-            trends = [];
-        }
+                trends.push(trendItem);
+            }
 
-        function trendsValue(report) {
-            var trendItem = {};
+            function syncCompute(reports, customdate) {
+                initTrends(customdate);
+                reports.forEach(trendsValue);
+                return trends;
+            }
 
-            trendItem[datekey] = dategetter(report);
+            function streamCompute(stream, cb) {
+                var lasterror;
+                initTrends(stream.customdate);
+                stream.on('data', trendsValue);
 
-            actions.forEach(function (action) {
-                trendItem[action.trendName] = action.trendvalue(report);
-            });
+                stream.on('error', function (err) {lasterror = err; });
 
-            trends.push(trendItem);
-        }
+                stream.on('end', function () {
+                    cb(lasterror, lasterror ? undefined : trends);
+                });
+            }
 
-        function endTrends() {
-            var bak = trends;
-            actions = trends = null;
-            return bak;
-        }
-
-        function syncCompute(reports, customdate) {
-            beginTrends(customdate);
-            reports.forEach(trendsValue);
-            return endTrends();
-        }
-
-        function streamCompute(stream, cb) {
-            var lasterror;
-            beginTrends(stream.customdate);
-            stream.on('data', trendsValue);
-
-            stream.on('error', function (err) {lasterror = err; });
-
-            stream.on('end', function () {
-                cb(lasterror, lasterror ? undefined : trends);
-                endTrends();
-            });
-        }
-
-        // function that ends current chain
-        // performs computation
-        function compute(data, cb) {
             return data instanceof Readable ?
                     streamCompute(data, cb) :
                     syncCompute(data, cb);
         }
+
 
         // make public (chained) Trend function
         // which simply pushes an action and returns chain

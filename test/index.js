@@ -34,6 +34,26 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('can be used twice', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
+                { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
+                { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
+            ],
+                query = H.timeserie('sessionCount');
+            query.data(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
+                { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
+            ]);
+            query.data(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
+                { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
+            ]);
+
+        });
+
         it('can access nested object', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), status: {sessionCount: 100, schemasCount: 10}},
