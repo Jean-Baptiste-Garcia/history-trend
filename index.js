@@ -68,8 +68,7 @@ module.exports = (function () {
             dategetter = function (report) { return report.date; };
 
         function compute(cb, source, customdate) {
-            var namedactions,
-                trends = [];
+            var namedactions;
 
             function initTrends(customdate) {
                 if (customdate) {
@@ -95,8 +94,6 @@ module.exports = (function () {
                         return namedaction;
                     });
                 }());
-
-                trends = [];
             }
 
             function trendsValue(report) {
@@ -105,31 +102,23 @@ module.exports = (function () {
                 namedactions.forEach(function (action, index) {
                     trendItem[action.trendname] = action.trendvalue(report);
                 });
-
-                trends.push(trendItem);
-            }
-
-            function syncCompute(reports, customdate) {
-                initTrends(customdate);
-                reports.forEach(trendsValue);
-                return trends;
+                return trendItem;
             }
 
             function streamCompute(stream, cb, customdate) {
-                var lasterror;
-                initTrends(customdate);
-                stream.on('data', trendsValue);
+                var trends = [],
+                    lasterror;
+                stream.on('data',  function acc(report) {trends.push(trendsValue(report)); });
 
                 stream.on('error', function (err) {lasterror = err; });
 
-                stream.on('end', function () {
-                    cb(lasterror, lasterror ? undefined : trends);
-                });
+                stream.on('end', function () {cb(lasterror, lasterror ? undefined : trends); });
             }
 
+            initTrends(customdate);
             return source instanceof Readable ?
                     streamCompute(source, cb, customdate) :
-                    syncCompute(source, customdate);
+                    source.map(trendsValue);
         }
 
         // make public (chained) Trend function
