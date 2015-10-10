@@ -18,6 +18,7 @@ module.exports = (function () {
     }
 
     function trendName(option, defaultname) {
+        if (!option) {return undefined; }
         switch (typeof option) {
         case 'string':
             return lastPathComponent(option);
@@ -46,6 +47,7 @@ module.exports = (function () {
     }
 
     function makeGetter(field) {
+        if (!field) {return undefined; }
         switch (typeof field) {
         case 'string':
             return makePathGetter(field);
@@ -56,6 +58,25 @@ module.exports = (function () {
         }
     }
 
+
+    function uniqueTrendNames(actions) {
+        var moreThanOnceCounter = R.compose(
+            R.mapObj(function (count) { return count > 1 ? 1 : 0; }), // 0 means unique , 1 means more than once
+            R.countBy(R.prop('name')) // count number of actions with same name
+        ),
+            moreThanOnce = moreThanOnceCounter(actions);
+
+        // rename duplicates value, value, value --> value1, value2, value3
+        return actions.map(function (action) {
+            var namedaction = R.clone(action);
+            namedaction.trendname = action.name;
+            if (moreThanOnce[action.name] > 0) {
+                namedaction.trendname += moreThanOnce[action.name];
+                moreThanOnce[action.name] += 1; // now moreThanOnce is used as a counter
+            }
+            return namedaction;
+        });
+    }
     /**
     * construct a chain object to allow :
     * h.timeserie(field1).flux(field2).data(myData)
@@ -64,37 +85,12 @@ module.exports = (function () {
     Chain = function (Trends) {
         var chain,
             actions = [],
-            datekey = 'date',
-            dategetter = function (report) { return report.date; };
+            defaultdategetter = function (report) { return report.date; };
 
         function compute(cb, source, customdate) {
-            var namedactions;
-
-            function initTrends(customdate) {
-                if (customdate) {
-                    dategetter = makeGetter(customdate);
-                    datekey = trendName(customdate, 'date');
-                }
-
-                namedactions = (function uniqueTrendNames() {
-                    var moreThanOnceCounter = R.compose(
-                        R.mapObj(function (count) { return count > 1 ? 1 : 0; }), // 0 means unique , 1 means more than once
-                        R.countBy(R.prop('name')) // count number of actions with same name
-                    ),
-                        moreThanOnce = moreThanOnceCounter(actions);
-
-                    // rename duplicates value, value, value --> value1, value2, value3
-                    return actions.map(function (action) {
-                        var namedaction = R.clone(action);
-                        namedaction.trendname = action.name;
-                        if (moreThanOnce[action.name] > 0) {
-                            namedaction.trendname += moreThanOnce[action.name];
-                            moreThanOnce[action.name] += 1; // now moreThanOnce is used as a counter
-                        }
-                        return namedaction;
-                    });
-                }());
-            }
+            var datekey = trendName(customdate, 'date') || 'date',
+                dategetter = makeGetter(customdate) || defaultdategetter,
+                namedactions = uniqueTrendNames(actions);
 
             function trendsValue(report) {
                 var trendItem = {};
@@ -115,7 +111,6 @@ module.exports = (function () {
                 stream.on('end', function () {cb(lasterror, lasterror ? undefined : trends); });
             }
 
-            initTrends(customdate);
             return source instanceof Readable ?
                     streamCompute(source, cb, customdate) :
                     source.map(trendsValue);
@@ -132,8 +127,8 @@ module.exports = (function () {
 
         chain = R.mapObj(makeChainedTrend)(Trends);
 
-        chain.fromArray = function (reports, customdate) {return compute(undefined, reports, customdate); };
-        chain.fromStore = function (store, cb, startdate) {return compute(cb, store.stream(startdate), store.customdate); };
+        chain.fromArray  = function (reports, customdate) {return compute(undefined, reports, customdate); };
+        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate), store.customdate); };
         chain.formStream = function (stream, cb, customdate) {return compute(cb, stream, customdate); };
 
         return chain;
