@@ -347,19 +347,20 @@ describe('cached history-trend on fs store', function () {
         function cache(query, store) {
             var trends,
                 lastdate;
-            return function (cb) {
 
-                function newtrends(old, delta) {
-                    if (!old) {return delta; }
-                    if (!delta || delta.length === 1) {return old; }
-                    return old.concat(delta.splice(1));
-                }
-                function owncb(err, delta) {
-                    trends = newtrends(trends, delta);
+            function append(delta) {
+                if (!trends) {return delta; }
+                if (!delta || delta.length === 1) {return trends; }
+                return trends.concat(delta.splice(1));
+            }
+
+            return function (cb) {
+                function cachecb(err, delta) {
+                    trends = append(delta);
                     lastdate = store.dategetter(trends[trends.length - 1]);
                     cb(err, trends);
                 }
-                query.fromStore(store, owncb, lastdate);
+                query.fromStore(store, cachecb, lastdate);
             };
         }
 
