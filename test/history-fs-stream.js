@@ -345,19 +345,19 @@ describe('cached history-trend on fs store', function () {
 
 
         function cache(query, store) {
-            var cachedtrends,
+            var trends,
                 lastdate;
             return function (cb) {
-                function owncb(err, t) {
-                    if (!cachedtrends) {
-                        cachedtrends = t;
-                    } else {
-                        if (t && t.length > 1) {
-                            cachedtrends = cachedtrends.concat(t.splice(1));
-                        }
-                    }
-                    lastdate = cachedtrends[cachedtrends.length - 1].date; // KO only defaut date
-                    cb(err, cachedtrends);
+
+                function newtrends(old, delta) {
+                    if (!old) {return delta; }
+                    if (!delta || delta.length === 1) {return old; }
+                    return old.concat(delta.splice(1));
+                }
+                function owncb(err, delta) {
+                    trends = newtrends(trends, delta);
+                    lastdate = store.dategetter(trends[trends.length - 1]);
+                    cb(err, trends);
                 }
                 query.fromStore(store, owncb, lastdate);
             };
