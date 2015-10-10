@@ -14,7 +14,7 @@ var should = require('chai').should(),
 
 describe('history-trend on fs store', function () {
 
-    describe('with default streams', function () {
+    describe('with default store', function () {
 
         var hs;
 
@@ -34,8 +34,8 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+        it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
+            H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -48,11 +48,11 @@ describe('history-trend on fs store', function () {
             });
         });
 
-        it('can handle stream error.', function (done) {
+        it('handles stream error.', function (done) {
 
             fse.writeFileSync(path.resolve(storageRoot + '/MyServer/' + (Date.now() + 10000) + '-938112514.json'), '{"date":"1995-12-17T03:24:00.000Z","status":}');
             var called = 0;
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+            H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 called += 1;
                 assert.isDefined(err);
                 if (err) {
@@ -63,8 +63,8 @@ describe('history-trend on fs store', function () {
             });
         });
 
-        it('can compute direct chained timeserie h.f(k).f(k).data(stream)', function (done) {
-            H.timeserie('status.schemasCount').timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+        it('computes chained timeserie h.f(k).f(k).fromStore(store, cb)', function (done) {
+            H.timeserie('status.schemasCount').timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -77,11 +77,11 @@ describe('history-trend on fs store', function () {
             });
         });
 
-        it('can compute timeserie with custom function h.f(g).data(stream)', function (done) {
+        it('computes timeserie with custom function h.f(g).fromStore(store, cb)', function (done) {
             function counter(item) {
                 return item.status.sessionCount + item.status.schemasCount;
             }
-            H.timeserie(counter).data(hs.stream(), function (err, timeserie) {
+            H.timeserie(counter).fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -95,7 +95,7 @@ describe('history-trend on fs store', function () {
         });
     });
 
-    describe('with custom simple date stream', function () {
+    describe('with string custom date store', function () {
 
         var hs;
 
@@ -115,8 +115,8 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+        it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
+            H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -130,7 +130,7 @@ describe('history-trend on fs store', function () {
         });
     });
 
-    describe('with custom nested path date stream', function () {
+    describe('with custom nested date', function () {
 
         var hs;
 
@@ -150,8 +150,8 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+        it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
+            H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -165,7 +165,7 @@ describe('history-trend on fs store', function () {
         });
     });
 
-    describe('with custom named function date stream', function () {
+    describe('with custom named function date', function () {
 
         var hs;
 
@@ -185,8 +185,8 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
-            H.timeserie('status.sessionCount').data(hs.stream(), function (err, timeserie) {
+        it('can compute timeserie h.f(k).fromStore(store, cb)', function (done) {
+            H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -200,7 +200,7 @@ describe('history-trend on fs store', function () {
         });
     });
 
-    describe('with custom anonymous function date stream', function () {
+    describe('with custom anonymous function date', function () {
         var hs;
 
         beforeEach(function startAndPopulateServer(done) {
@@ -219,9 +219,9 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
+        it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
             var q = H.timeserie('status.sessionCount');
-            q.data(hs.stream(), function (err, timeserie) {
+            q.fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -236,7 +236,7 @@ describe('history-trend on fs store', function () {
 
         it('h.f(k) can be used twice', function (done) {
             var q = H.timeserie('status.sessionCount');
-            q.data(hs.stream(), function (err, timeserie) {
+            q.fromStore(hs, function (err, timeserie) {
                 if (err) {
                     done(err);
                 }
@@ -245,7 +245,7 @@ describe('history-trend on fs store', function () {
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
                     { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
                 ]);
-                q.data(hs.stream(), function (err, timeserie) {
+                q.fromStore(hs, function (err, timeserie) {
                     if (err) {
                         done(err);
                     }
@@ -260,7 +260,7 @@ describe('history-trend on fs store', function () {
         });
     });
 
-    describe('can compute flux', function () {
+    describe('computes flux', function () {
         it('when flux called after timeserie', function (done) {
             fse.removeSync(path.resolve(storageRoot));
             var hs = historystore(storageRoot).report('MyServer'),
@@ -274,7 +274,7 @@ describe('history-trend on fs store', function () {
                 };
             }),
                 function () {
-                    H.timeserie('x').flux('issues').data(hs.stream(), function (err, timeserie) {
+                    H.timeserie('x').flux('issues').fromStore(hs, function (err, timeserie) {
                         if (err) {
                             done(err);
                         }
@@ -305,7 +305,7 @@ describe('history-trend on fs store', function () {
                         identification: 'id',
                         identical: R.length,
                         modified: R.length
-                    }).data(hs.stream(), function (err, timeserie) {
+                    }).fromStore(hs, function (err, timeserie) {
                         if (err) {
                             done(err);
                         }
@@ -323,7 +323,7 @@ describe('history-trend on fs store', function () {
 });
 
 describe('cached history-trend on fs store', function () {
-    describe('with default streams', function () {
+    describe('with default store', function () {
 
         var hs;
 
@@ -345,31 +345,31 @@ describe('cached history-trend on fs store', function () {
 
 
         function cache(query, store) {
-            var trends;
+            var cachedtrends,
+                lastdate;
             return function (cb) {
                 function owncb(err, t) {
-                    trends = t;
-                    cb(err, trends);
+                    if (!cachedtrends) {
+                        cachedtrends = t;
+                    } else {
+                        if (t && t.length > 1) {
+                            cachedtrends = cachedtrends.concat(t.splice(1));
+                        }
+                    }
+                    lastdate = cachedtrends[cachedtrends.length - 1].date; // KO only defaut date
+                    cb(err, cachedtrends);
                 }
-
-                if (trends) {
-                    return cb(undefined, trends);
-                }
-                query.data(store.stream(), owncb);
+                query.fromStore(store, owncb, lastdate);
             };
         }
 
-        it('can compute timeserie h.f(k).data(stream)', function (done) {
+        it('computes timeserie and has same trends when store has not changed', function (done) {
             var q = H.timeserie('status.sessionCount'),
                 result1,
                 cached = cache(q, hs);
 
             cached(function (err, timeserie) {
-                if (err) {
-                    console.log('err', err);
-                    done(err);
-                    return;
-                }
+                if (err) { return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -378,15 +378,36 @@ describe('cached history-trend on fs store', function () {
                 result1 = timeserie;
 
                 cached(function (err2, timeserie) {
-                    if (err2) {
-                        done(err2);
-                        return;
-                    }
+                    if (err2) { return done(err2); }
                     timeserie.should.equal(result1);
                     done();
                 });
             });
+        });
+        it('computes timeserie when new report added', function (done) {
+            var q = H.timeserie('status.sessionCount'),
+                cached = cache(q, hs);
+
+            cached(function (err, timeserie) {
+                if (err) {return done(err); }
+                hs.put({date: new Date('1995-12-20T05:44:10'), status: {sessionCount: 110, schemasCount: 20}}, function (err) {
+                    if (err) {return done(err); }
+                    cached(function (err, timeserie) {
+                        if (err) { return done(err); }
+                        timeserie.should.eql([
+                            {date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
+                            {date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
+                            {date: new Date('1995-12-19T05:44:10'), sessionCount: 102},
+                            {date: new Date('1995-12-20T05:44:10'), sessionCount: 110}
+                        ]);
+                        done();
+                    });
+                });
+
+
+            });
 
         });
+
     });
 });

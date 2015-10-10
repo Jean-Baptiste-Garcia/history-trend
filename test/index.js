@@ -7,13 +7,13 @@ var should = require('chai').should(),
 
 describe('history-trend', function () {
     describe('timeSerie', function () {
-        it('works for simple data : h.f(k).data(d)', function () {
+        it('works for array : h.f(k).fromArray(d)', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ];
-            H.timeserie('sessionCount').data(data).should.eql(data);
+            H.timeserie('sessionCount').fromArray(data).should.eql(data);
         });
 
         it('should only returns timeSerie fields', function () {
@@ -22,12 +22,12 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
             ];
-            H.timeserie('sessionCount').data(data).should.eql([
+            H.timeserie('sessionCount').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ]);
-            H.timeserie('schemasCount').data(data).should.eql([
+            H.timeserie('schemasCount').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemasCount: 10},
                 { date: new Date('1995-12-18T03:24:00'), schemasCount: 20},
                 { date: new Date('1995-12-20T03:24:00'), schemasCount: 40}
@@ -41,12 +41,12 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120, schemasCount: 40}
             ],
                 query = H.timeserie('sessionCount');
-            query.data(data).should.eql([
+            query.fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ]);
-            query.data(data).should.eql([
+            query.fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
@@ -61,7 +61,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), status: {sessionCount: 120, schemasCount: 40}}
 
             ];
-            H.timeserie('status.sessionCount').data(data).should.eql([
+            H.timeserie('status.sessionCount').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
@@ -75,7 +75,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), status: { sessions: {sessionCount: 120}, schemasCount: 40}}
 
             ];
-            H.timeserie('status.sessions.sessionCount').data(data).should.eql([
+            H.timeserie('status.sessions.sessionCount').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
@@ -85,29 +85,29 @@ describe('history-trend', function () {
 
     describe('timeSerie with custom date field', function () {
 
-        it('manages simple path h.f(k).data(d, dk)', function () {
+        it('manages simple path h.f(k).fromArray(d, dk)', function () {
             var data = [
                 { creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { creationdate: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { creationdate: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ];
-            H.timeserie('sessionCount').data(data, 'creationdate').should.eql(data);
+            H.timeserie('sessionCount').fromArray(data, 'creationdate').should.eql(data);
         });
 
-        it('manages nested path h.f(k).data(d, s.dk0)', function () {
+        it('manages nested path h.f(k).fromArray(d, s.dk0)', function () {
             var data = [
                 { status: {creationdate: new Date('1995-12-17T03:24:00')}, sessionCount: 100},
                 { status: {creationdate: new Date('1995-12-18T03:24:00')}, sessionCount: 110},
                 { status: {creationdate: new Date('1995-12-20T03:24:00')}, sessionCount: 120}
             ];
-            H.timeserie('sessionCount').data(data, 'status.creationdate').should.eql([
+            H.timeserie('sessionCount').fromArray(data, 'status.creationdate').should.eql([
                 { creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { creationdate: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { creationdate: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ]);
         });
 
-        it('manages named date getter h.f(k).data(d, getdate)', function () {
+        it('manages named date getter h.f(k).fromArray(d, getdate)', function () {
             var data = [
                 { status: {creationdate: new Date('1995-12-17T03:24:00')}, sessionCount: 100},
                 { status: {creationdate: new Date('1995-12-18T03:24:00')}, sessionCount: 110},
@@ -115,13 +115,13 @@ describe('history-trend', function () {
             ],
                 dateGetter = function reportdate(report) { return report.status.creationdate; };
 
-            H.timeserie('sessionCount').data(data, dateGetter).should.eql([
+            H.timeserie('sessionCount').fromArray(data, dateGetter).should.eql([
                 { reportdate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { reportdate: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { reportdate: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ]);
         });
-        it('manages anonymous date getter h.f(k).data(d, getdate)', function () {
+        it('manages anonymous date getter h.f(k).fromArray(d, getdate)', function () {
             var data = [
                 { status: {creationdate: new Date('1995-12-17T03:24:00')}, sessionCount: 100},
                 { status: {creationdate: new Date('1995-12-18T03:24:00')}, sessionCount: 110},
@@ -129,7 +129,7 @@ describe('history-trend', function () {
             ],
                 dateGetter = function (report) { return report.status.creationdate; };
 
-            H.timeserie('sessionCount').data(data, dateGetter).should.eql([
+            H.timeserie('sessionCount').fromArray(data, dateGetter).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
@@ -139,7 +139,7 @@ describe('history-trend', function () {
         // TODO add date field that duplicates a report field (priority to date field or raise an error)
     });
 
-    describe('timeserie with custom function h.f(g).data(d)', function () {
+    describe('timeserie with custom function h.f(g).fromArray(d)', function () {
         it('can count array length', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
@@ -149,7 +149,7 @@ describe('history-trend', function () {
                 countadded = function (item) {
                     return item.schemas.added.length;
                 };
-            H.timeserie(countadded).data(data).should.eql([
+            H.timeserie(countadded).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), value: 2},
                 { date: new Date('1995-12-18T03:24:00'), value: 1},
                 { date: new Date('1995-12-20T03:24:00'), value: 1}
@@ -167,14 +167,14 @@ describe('history-trend', function () {
                     return item.sessionCount * item.schemasCount;
                 };
 
-            H.timeserie(customfunction).data(data).should.eql([
+            H.timeserie(customfunction).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), mult: 100 * 10},
                 { date: new Date('1995-12-18T03:24:00'), mult: 110 * 20},
                 { date: new Date('1995-12-20T03:24:00'), mult: 120 * 40}
             ]);
         });
 
-        it('work when chained h.f(g).f(k).data(d)', function () {
+        it('work when chained h.f(g).f(k).fromArray(d)', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
@@ -185,7 +185,7 @@ describe('history-trend', function () {
                     return item.sessionCount * item.schemasCount;
                 };
 
-            H.timeserie(customfunction).timeserie('schemasCount').data(data).should.eql([
+            H.timeserie(customfunction).timeserie('schemasCount').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), value: 100 * 10, schemasCount: 10},
                 { date: new Date('1995-12-18T03:24:00'), value: 110 * 20, schemasCount: 20},
                 { date: new Date('1995-12-20T03:24:00'), value: 120 * 40, schemasCount: 40}
@@ -193,7 +193,7 @@ describe('history-trend', function () {
         });
 
 
-        it('works when chained with another custom function (both named) h.f(g).f(h).data(d)', function () {
+        it('works when chained with another custom function (both named) h.f(g).f(h).fromArray(d)', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
@@ -207,7 +207,7 @@ describe('history-trend', function () {
                     return item.sessionCount + item.schemasCount;
                 };
 
-            H.timeserie(customfunction1).timeserie(customfunction2).data(data).should.eql(
+            H.timeserie(customfunction1).timeserie(customfunction2).fromArray(data).should.eql(
                 [
                     { date: new Date('1995-12-17T03:24:00'), mult: 100 * 10, sum: 100 + 10},
                     { date: new Date('1995-12-18T03:24:00'), mult: 110 * 20, sum: 110 + 20},
@@ -216,7 +216,7 @@ describe('history-trend', function () {
             );
         });
 
-        it('works when chained with another custom function (both anonymous) h.f(g).f(h).data(d)', function () {
+        it('works when chained with another custom function (both anonymous) h.f(g).f(h).fromArray(d)', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
                 { date: new Date('1995-12-18T03:24:00'), sessionCount: 110, schemasCount: 20},
@@ -230,7 +230,7 @@ describe('history-trend', function () {
                     return item.sessionCount + item.schemasCount;
                 };
 
-            H.timeserie(customfunction1).timeserie(customfunction2).data(data).should.eql([
+            H.timeserie(customfunction1).timeserie(customfunction2).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), value1: 100 * 10, value2: 100 + 10},
                 { date: new Date('1995-12-18T03:24:00'), value1: 110 * 20, value2: 110 + 20},
                 { date: new Date('1995-12-20T03:24:00'), value1: 120 * 40, value2: 120 + 40}
@@ -238,7 +238,7 @@ describe('history-trend', function () {
         });
     });
 
-    describe('flux on object h.f(k).data(d)', function () {
+    describe('flux on object h.f(k).fromArray(d)', function () {
         it('should work on simple data', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a'], user2: ['b'] }},
@@ -246,7 +246,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
             ];
 
-            H.fluxObj('schemas').data(data).should.eql([
+            H.fluxObj('schemas').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
@@ -260,7 +260,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['a', { name: 'hello', gloup: 'glup'}], user2: ['b'], user3: ['c', {msg: 'diff'}] }}
             ];
 
-            H.fluxObj('schemas').data(data).should.eql([
+            H.fluxObj('schemas').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: [], modified: ['user1', 'user3']}}
@@ -274,7 +274,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), status : {schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}}
             ];
 
-            H.fluxObj('status.schemas').data(data).should.eql([
+            H.fluxObj('status.schemas').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
@@ -290,7 +290,7 @@ describe('history-trend', function () {
 
             function schemas(report) {return report.status.schemas; }
 
-            H.fluxObj(schemas).data(data).should.eql([
+            H.fluxObj(schemas).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
@@ -300,7 +300,7 @@ describe('history-trend', function () {
 
     // TODO add tests on non existing properties
 
-    describe('flux on array h.f(k).data(d)', function () {
+    describe('flux on array h.f(k).fromArray(d)', function () {
         it('should work on nominal data', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
@@ -308,7 +308,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}]}
             ];
 
-            H.flux('issues').data(data).should.eql([
+            H.flux('issues').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
@@ -322,7 +322,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-901', status: 'Done'}, { key: 'JIRA-789', status: 'Done'}]}
             ];
 
-            H.flux('issues').data(data).should.eql([
+            H.flux('issues').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
@@ -336,7 +336,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), issues: [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'Done'}, { id: 'JIRA-900', status: 'Done'}, { id: 'JIRA-901', status: 'Done'}]}
             ];
 
-            H.flux('issues', {identification: 'id'}).data(data).should.eql([
+            H.flux('issues', {identification: 'id'}).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
@@ -353,7 +353,7 @@ describe('history-trend', function () {
             H.flux('issues', {
                 identical: function (identicals) { return identicals.length; },
                 modified:  function (modifieds) { return modifieds.length; }
-            }).data(data).should.eql([
+            }).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
@@ -371,7 +371,7 @@ describe('history-trend', function () {
                 identification: 'id',
                 identical: function (identicals) { return identicals.length; },
                 modified:  function (modifieds) { return modifieds.length; }
-            }).data(data).should.eql([
+            }).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                 { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
@@ -380,19 +380,19 @@ describe('history-trend', function () {
 
     });
 
-    describe('count h.f(k).data(d)', function () {
+    describe('count h.f(k).fromArray(d)', function () {
         it('should count array length', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), schemas: {added: ['user1', 'user2'], removed: [], identical: [], modified: []}},
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ];
-            H.count('schemas.added').data(data).should.eql([
+            H.count('schemas.added').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), added: 2},
                 { date: new Date('1995-12-18T03:24:00'), added: 1},
                 { date: new Date('1995-12-20T03:24:00'), added: 1}
             ]);
-            H.count('schemas.removed').data(data).should.eql([
+            H.count('schemas.removed').fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), removed: 0},
                 { date: new Date('1995-12-18T03:24:00'), removed: 1},
                 { date: new Date('1995-12-20T03:24:00'), removed: 0}
@@ -400,7 +400,7 @@ describe('history-trend', function () {
         });
     });
 
-    describe('chaining h.f(k).f(k).data(d)', function () {
+    describe('chaining h.f(k).f(k).fromArray(d)', function () {
         it('should work for timeseries', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
@@ -410,7 +410,7 @@ describe('history-trend', function () {
                 H.
                 timeserie('sessionCount').
                 timeserie('schemasCount').
-                data(data);
+                fromArray(data);
 
             results.should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10},
@@ -425,7 +425,7 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
                 { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
             ], results =
-                H.count('schemas.added').count('schemas.removed').data(data);
+                H.count('schemas.added').count('schemas.removed').fromArray(data);
 
             results.should.eql([
                 { date: new Date('1995-12-17T03:24:00'), added: 2, removed: 0},
@@ -434,13 +434,13 @@ describe('history-trend', function () {
             ]);
         });
 
-        it('compose on flux h.f(k).f(k).data(h.f(k).data(d))', function () {
+        it('compose on flux h.f(k).f(k).fromStore(h.f(k).fromStore(d))', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), schemas: { user1: ['a'], user2: ['b'] }},
                 { date: new Date('1995-12-18T03:24:00'), schemas: { user1: ['a'], user3: ['c'] }},
                 { date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
             ],
-                results = H.count('schemas.added').count('schemas.removed').data(H.fluxObj('schemas').data(data));
+                results = H.count('schemas.added').count('schemas.removed').fromArray(H.fluxObj('schemas').fromArray(data));
 
             results.should.eql([
                 { date: new Date('1995-12-17T03:24:00'), added: 0, removed: 0},
@@ -458,7 +458,7 @@ describe('history-trend', function () {
                 {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'In Progress', type: 'Bug'}]},
                 {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'Done', type: 'Bug'}, { key: 'JIRA-900', type: 'Bug', status: 'Done'}, { key: 'JIRA-901', status: 'Done', type: 'Bug'}]}];
 
-            H.flux('issues').data(reports).should.eql([
+            H.flux('issues').fromArray(reports).should.eql([
                 {date: new Date('2015-12-01T03:24:00'), issues: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
@@ -468,7 +468,7 @@ describe('history-trend', function () {
                 return report.issues.filter(function (issue) {return issue.type === 'Bug'; });
             }
 
-            H.flux(bugs).data(reports).should.eql([
+            H.flux(bugs).fromArray(reports).should.eql([
                 {date: new Date('2015-12-01T03:24:00'), bugs: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), bugs: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: [], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), bugs: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: []}}
@@ -482,12 +482,12 @@ describe('history-trend', function () {
                 { date: new Date('1995-12-20T03:24:00'), sessions: 120, disk: {free: 1000, used: 2000}}
             ];
 
-            H.timeserie('sessions').data(reports).should.eql([
+            H.timeserie('sessions').fromArray(reports).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), sessions: 100},
                 { date: new Date('1995-12-18T03:24:00'), sessions: 110},
                 { date: new Date('1995-12-20T03:24:00'), sessions: 120}
             ]);
-            H.timeserie('disk.used').data(reports).should.eql([
+            H.timeserie('disk.used').fromArray(reports).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), used: 1000},
                 { date: new Date('1995-12-18T03:24:00'), used: 1500},
                 { date: new Date('1995-12-20T03:24:00'), used: 2000}
@@ -496,7 +496,7 @@ describe('history-trend', function () {
             function diskUsageRatio(report) {
                 return report.disk.used / (report.disk.free + report.disk.used);
             }
-            H.timeserie(diskUsageRatio).data(reports).should.eql([
+            H.timeserie(diskUsageRatio).fromArray(reports).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), diskUsageRatio: 0.3333333333333333},
                 { date: new Date('1995-12-18T03:24:00'), diskUsageRatio: 0.5},
                 { date: new Date('1995-12-20T03:24:00'), diskUsageRatio: 0.6666666666666666}
@@ -517,7 +517,7 @@ describe('history-trend', function () {
                 return report.issues.filter(function (item) {return item.type === 'Feature'; }).length;
             }
 
-            H.timeserie(bugsCount).flux('issues').timeserie(featuresCount).data(reports).should.eql([
+            H.timeserie(bugsCount).flux('issues').timeserie(featuresCount).fromArray(reports).should.eql([
                 {date: new Date('2015-12-01T03:24:00'), bugsCount: 1, featuresCount: 1, issues: { added: [], removed: [], modified: [], identical: []}},
                 {date: new Date('2015-12-02T03:22:00'), bugsCount: 1, featuresCount: 1, issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: []}},
                 {date: new Date('2015-12-03T03:30:00'), bugsCount: 3, featuresCount: 1, issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}

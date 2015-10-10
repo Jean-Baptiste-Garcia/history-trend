@@ -2,11 +2,9 @@ history-trend
 ===============
 
 history-trend computes trends from an history source. Source can be :
-* in memory array of versionned reports
-* streamed (using node.js stream.Readable)
-
-[history-store](https://github.com/Jean-Baptiste-Garcia/history-store) is a streamable file system source.
-
+* array of versionned reports
+* [history-store](https://github.com/Jean-Baptiste-Garcia/history-store)
+* stream (using node.js stream.Readable)
 
 Installation
 ------------
@@ -31,7 +29,7 @@ As an example, we consider history of issues present in a backlog. One wants to 
 {date: new Date('2015-12-02T03:22:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'In Progress', type: 'Bug'}]},
 {date: new Date('2015-12-03T03:30:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', type: 'Feature'}, { key: 'JIRA-789', status: 'Done', type: 'Bug'}, { key: 'JIRA-900', type: 'Bug', status: 'Done'}, { key: 'JIRA-901', status: 'Done', type: 'Bug'}]}];
 
-H.flux('issues').data(reports);
+H.flux('issues').fromArray(reports);
 // returns
 [
  {date: 'Tue Dec 01 2015 04:24:00', issues: { added: [], removed: [], modified: [], identical: []}},
@@ -46,7 +44,7 @@ function bugs(report) {
     return report.issues.filter(function (issue) {return issue.type === 'Bug'; });
 }
 
-H.flux(bugs).data(reports);
+H.flux(bugs).fromArray(reports);
 // returns
 [
     {date: new Date('2015-12-01T03:24:00'), bugs: { added: [], removed: [], modified: [], identical: []}},
@@ -67,7 +65,7 @@ By default, when computing flux on object arrays, two objects are said to be ide
 
 It is possible to change identification method. For instance, if issues are identified by ```id``` property, use :
 ```javascript
-H.flux('issues', {identification: 'id'}).data(reports);
+H.flux('issues', {identification: 'id'}).fromArray(reports);
 ```
 
 #### Custom output
@@ -77,7 +75,7 @@ You can define functions to be applied on identical/modified/added/removed befor
 ```javascript
 H.flux('issues',{
     identical: function (identicals) { return identicals.length; }
- }).data(reports);
+ }).fromArray(reports);
 // returns
 [
  {date: 'Tue Dec 01 2015 04:24:00', issues: { added: [], removed: [], modified: [], identical: 0}},
@@ -101,7 +99,7 @@ fluxObj compares key/values of each object and :
     {date: new Date('1995-12-20T03:24:00'), schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}
 ];
 
-H.fluxObj('schemas').data(reports);
+H.fluxObj('schemas').fromArray(reports);
 
 //returns
 [
@@ -122,7 +120,7 @@ var H = require('history-trend'),
     {date: new Date('1995-12-18T03:24:00'), sessions: 110, disk: {free: 1500, used: 1500}},
     {date: new Date('1995-12-20T03:24:00'), sessions: 120, disk: {free: 1000, used: 2000}}
 ];
-H.timeserie('sessions').data(reports);
+H.timeserie('sessions').fromArray(reports);
 
 // returns
 [
@@ -134,7 +132,7 @@ H.timeserie('sessions').data(reports);
 It is possible to access nested properties :
 
 ```javascript
-H.timeserie('disk.used').data(reports)
+H.timeserie('disk.used').fromArray(reports)
 // returns
 [
     {date: new Date('1995-12-17T03:24:00'), used: 1000},
@@ -149,7 +147,7 @@ And, it is possible to use any function that operates on a report :
     return report.disk.used / (report.disk.free + report.disk.used);
 }
 
-H.timeserie(diskUsageRatio).data(reports);
+H.timeserie(diskUsageRatio).fromArray(reports);
 
 // returns
 [
@@ -164,20 +162,18 @@ Using custom functions is specially convenient when reports are raw and you need
 Count simply returns length of an array.
 
 
-### Using streams
-Any trend can read ```Readable.Stream```. Using stream minimizes memory consumption.
+### Using history-store
+Using history-store minimizes memory consumption, because reports are streamed to build trends.
 
-For streamed history source, please refer to [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
+For more details, please refer to [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
 
 ```javascript
 var H = require('history-trend'),
-    store = require('history-store')('../history'),
-    source = store('project');
+    stores = require('history-store')('../history'),
+    store = stores('project');
  // trend returns the count of issues over time
- H.count('issues').data(source.stream(), function (err, trends){} );
+ H.count('issues').fromStore(store, function (err, trends){} );
 ```
-In principle, any stream will work, provided ```data event``` returns a report.
-
 
 ### Chaining
 It is possible to chain all trends so that several trends can be computed in one call.
@@ -200,7 +196,7 @@ function featuresCount(report) {
 H.timeserie(bugsCount).
   flux('issues').
   timeserie(featuresCount).
-  data(reports);
+  fromArray(reports);
 
 // Returns
 

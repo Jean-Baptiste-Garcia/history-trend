@@ -67,7 +67,7 @@ module.exports = (function () {
             datekey = 'date',
             dategetter = function (report) { return report.date; };
 
-        function compute(data, cb) {
+        function compute(cb, source, customdate) {
             var namedactions,
                 trends = [];
 
@@ -115,9 +115,9 @@ module.exports = (function () {
                 return trends;
             }
 
-            function streamCompute(stream, cb) {
+            function streamCompute(stream, cb, customdate) {
                 var lasterror;
-                initTrends(stream.customdate);
+                initTrends(customdate);
                 stream.on('data', trendsValue);
 
                 stream.on('error', function (err) {lasterror = err; });
@@ -127,11 +127,10 @@ module.exports = (function () {
                 });
             }
 
-            return data instanceof Readable ?
-                    streamCompute(data, cb) :
-                    syncCompute(data, cb);
+            return source instanceof Readable ?
+                    streamCompute(source, cb, customdate) :
+                    syncCompute(source, customdate);
         }
-
 
         // make public (chained) Trend function
         // which simply pushes an action and returns chain
@@ -143,7 +142,10 @@ module.exports = (function () {
         }
 
         chain = R.mapObj(makeChainedTrend)(Trends);
-        chain.data = compute;
+
+        chain.fromArray = function (reports, customdate) {return compute(undefined, reports, customdate); };
+        chain.fromStore = function (store, cb, startdate) {return compute(cb, store.stream(startdate), store.customdate); };
+        chain.formStream = function (stream, cb, customdate) {return compute(cb, stream, customdate); };
 
         return chain;
     };
