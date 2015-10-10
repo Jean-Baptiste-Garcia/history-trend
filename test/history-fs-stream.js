@@ -343,18 +343,30 @@ describe('cached history-trend on fs store', function () {
             }), done);
         });
 
+
+        function cache(query, store) {
+            var trends;
+            return function (cb) {
+                function owncb(err, t) {
+                    trends = t;
+                    cb(err, trends);
+                }
+
+                if (trends) {
+                    return cb(undefined, trends);
+                }
+                query.data(store.stream(), owncb);
+            };
+        }
+
         it('can compute timeserie h.f(k).data(stream)', function (done) {
-            function cache(query, store) {
-                return function (cb) {
-                    query.data(store.stream(), cb);
-                };
-            }
             var q = H.timeserie('status.sessionCount'),
-                trends,
+                result1,
                 cached = cache(q, hs);
 
             cached(function (err, timeserie) {
                 if (err) {
+                    console.log('err', err);
                     done(err);
                     return;
                 }
@@ -363,16 +375,14 @@ describe('cached history-trend on fs store', function () {
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
                     { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
                 ]);
-                trends = timeserie;
+                result1 = timeserie;
 
                 cached(function (err2, timeserie) {
-                    console.log('here');
                     if (err2) {
                         done(err2);
                         return;
                     }
-                    console.log(trends === timeserie);
-
+                    timeserie.should.equal(result1);
                     done();
                 });
             });

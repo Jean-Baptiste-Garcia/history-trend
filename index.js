@@ -101,7 +101,6 @@ module.exports = (function () {
 
             function trendsValue(report) {
                 var trendItem = {};
-
                 trendItem[datekey] = dategetter(report);
                 namedactions.forEach(function (action, index) {
                     trendItem[action.trendname] = action.trendvalue(report);
