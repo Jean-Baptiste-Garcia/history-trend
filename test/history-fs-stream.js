@@ -365,11 +365,12 @@ describe('cached history-trend on fs store', function () {
         }
 
         it('computes timeserie and has same trends when store has not changed', function (done) {
-            var q = H.timeserie('status.sessionCount'),
-                result1,
-                cached = cache(q, hs);
+            var q = cache(H.timeserie('status.sessionCount'), hs),
+               // q = H.timeserie('status.sessionCount').cache(hs), // a query can be cached in different stores
+                //q = hs.cache(H.timeserie('status.sessionCount')),
+                result1;
 
-            cached(function (err, timeserie) {
+            q(function (err, timeserie) {
                 if (err) { return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
@@ -378,7 +379,7 @@ describe('cached history-trend on fs store', function () {
                 ]);
                 result1 = timeserie;
 
-                cached(function (err2, timeserie) {
+                q(function (err2, timeserie) {
                     if (err2) { return done(err2); }
                     timeserie.should.equal(result1);
                     done();
@@ -386,15 +387,14 @@ describe('cached history-trend on fs store', function () {
             });
         });
         it('computes timeserie when new report added', function (done) {
-            var q = H.timeserie('status.sessionCount'),
-                cached = cache(q, hs);
+            var q = cache(H.timeserie('status.sessionCount'), hs);
 
-            cached(function (err, timeserie) {
+            q(function (err, timeserie) {
                 if (err) {return done(err); }
                 hs.put({date: new Date('1995-12-20T05:44:10'), status: {sessionCount: 110, schemasCount: 20}}, function (err) {
                     if (err) {return done(err); }
-                    cached(function (err, timeserie) {
-                        if (err) { return done(err); }
+                    q(function (err, timeserie) {
+                        if (err) {return done(err); }
                         timeserie.should.eql([
                             {date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                             {date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
