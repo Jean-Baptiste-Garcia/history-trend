@@ -38,7 +38,7 @@ describe('array-diff', function () {
             diff = xarray();
 
         diff(a, a).should.eql({added: [], removed: [], identical: ['JIRA-123', 'JIRA-456'], modified: []});
-        diff(b, b).should.eql({added: [], removed: [], identical: ['JIRA-783', 'JIRA-789', 'JIRA-100', 'JIRA-901'], modified: []});
+        diff(b, b).should.eql({added: [], removed: [], identical: [ 'JIRA-100', 'JIRA-783', 'JIRA-789', 'JIRA-901'], modified: []});
     });
 
     it('works with empty arrays', function () {
@@ -59,7 +59,7 @@ describe('array-diff', function () {
             [{ key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-901', status: 'Done'}, { key: 'JIRA-789', status: 'Done'}]
         ],
             diff = xarray();
-        diff([], data[0]).should.eql({added: ['JIRA-456', 'JIRA-123'], removed: [], identical: [], modified: []});
+        diff([], data[0]).should.eql({added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []});
         shouldBeAntiSymetric(diff, neg, [], data[0]);
         diff(data[0], data[1]).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
         shouldBeAntiSymetric(diff, neg, data[0], data[1]);
