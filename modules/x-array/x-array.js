@@ -1,12 +1,10 @@
 /*jslint node: true */
-module.exports = function (optKey) {
+module.exports = function (config) {
     'use strict';
     var R = require('ramda'),
-        idKey = optKey || 'key',
-        id = function (x) {return x[idKey]; },
-        compareId = function (x, y) {return x.localeCompare(y); },
-
-        sortObj = function (x, y) {return compareId(id(x), id(y)); };
+        id = config.id,
+        compareId = config.compareId,
+        compareObj = config.compareObj || function (x, y) {return compareId(id(x), id(y)); };
 
 
     function diffAB(araw, braw) {
@@ -30,13 +28,10 @@ module.exports = function (optKey) {
             blen,
             cmp;
 
-        if (!araw) {
-            // first comparison -- is meaningless -- all are considered as empty
-            return diff;
-        } // FIXME should be handled in flux. not here
+        if (!araw || !braw) {return diff; }
 
-        a = R.sort(sortObj)(araw);
-        b = R.sort(sortObj)(braw);
+        a = R.sort(compareObj)(araw);
+        b = R.sort(compareObj)(braw);
         alen = a.length;
         blen = b.length;
 

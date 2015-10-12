@@ -3,7 +3,12 @@
 'use strict';
 
 var should = require('chai').should(),
-    xarray = require('../../modules/x-array/x-array');
+    xarray = require('../../modules/x-array/x-array'),
+    keyDiff = {
+        id: function (obj) {return obj.key; },
+        compareId: function (ida,  idb) { return ida.localeCompare(idb); },
+        compareObj: function (obja, objb) {return obja.key.localeCompare(objb.key); }
+    };
 
 function neg(diff) {
     return {
@@ -24,7 +29,7 @@ describe('array-diff', function () {
         var a = [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}],
             b = [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}],
             c = [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}],
-            diff = xarray();
+            diff = xarray(keyDiff);
 
         diff(a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
         shouldBeAntiSymetric(diff, neg, a, b);
@@ -35,7 +40,7 @@ describe('array-diff', function () {
     it('is reflexive', function () {
         var a = [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}],
             b = [{ key: 'JIRA-783', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-100', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}],
-            diff = xarray();
+            diff = xarray(keyDiff);
 
         diff(a, a).should.eql({added: [], removed: [], identical: ['JIRA-123', 'JIRA-456'], modified: []});
         diff(b, b).should.eql({added: [], removed: [], identical: [ 'JIRA-100', 'JIRA-783', 'JIRA-789', 'JIRA-901'], modified: []});
@@ -44,7 +49,7 @@ describe('array-diff', function () {
     it('works with empty arrays', function () {
         var a = [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}],
             b = [{ key: 'JIRA-783', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-100', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}],
-            diff = xarray();
+            diff = xarray(keyDiff);
 
         diff(a, []).should.eql({added: [], removed: ['JIRA-123', 'JIRA-456'], identical: [], modified: []});
         shouldBeAntiSymetric(diff, neg, a, []);
@@ -58,7 +63,7 @@ describe('array-diff', function () {
             [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}],
             [{ key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-901', status: 'Done'}, { key: 'JIRA-789', status: 'Done'}]
         ],
-            diff = xarray();
+            diff = xarray(keyDiff);
         diff([], data[0]).should.eql({added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []});
         shouldBeAntiSymetric(diff, neg, [], data[0]);
         diff(data[0], data[1]).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
@@ -69,12 +74,30 @@ describe('array-diff', function () {
     });
 });
 
-describe('array-diff with custom identity', function () {
-    it('can compare nominal arrays', function () {
+describe('array-diff with custom', function () {
+    it('identity compares nominal arrays', function () {
         var a = [{ id: 'JIRA-123', status: 'New'}, { id: 'JIRA-456', status: 'In Progress'}],
             b = [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'In Progress'}],
             c = [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'Done'}, { id: 'JIRA-900', status: 'Done'}, { id: 'JIRA-901', status: 'Done'}],
-            diff = xarray('id');
+            diff = xarray({
+                id: function (obj) {return obj.id; },
+                compareId: function (ida,  idb) { return ida.localeCompare(idb); },
+                compareObj: function (obja, objb) {return obja.id.localeCompare(objb.id); }
+            });
+
+        diff(a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
+        shouldBeAntiSymetric(diff, neg, a, b);
+        diff(b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
+        shouldBeAntiSymetric(diff, neg, b, c);
+    });
+    it('identity and default compareObj compares nominal arrays', function () {
+        var a = [{ id: 'JIRA-123', status: 'New'}, { id: 'JIRA-456', status: 'In Progress'}],
+            b = [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'In Progress'}],
+            c = [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'Done'}, { id: 'JIRA-900', status: 'Done'}, { id: 'JIRA-901', status: 'Done'}],
+            diff = xarray({
+                id: function (obj) {return obj.id; },
+                compareId: function (ida,  idb) { return ida.localeCompare(idb); }
+            });
 
         diff(a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
         shouldBeAntiSymetric(diff, neg, a, b);
