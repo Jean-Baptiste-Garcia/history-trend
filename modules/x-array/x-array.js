@@ -18,15 +18,15 @@ module.exports = function (config) {
                 identical:  identical,
                 modified:  modified
             },
-            a,
-            b,
-            aId,
-            bId,
-            aidx = 0,
-            bidx = 0,
-            alen,
-            blen,
-            cmp;
+            a,          // sorted
+            b,          // sorted
+            alen,       // a.length
+            blen,       // b.length
+            aId,        // id of current a element
+            bId,        // id of current b element
+            aidx = 0,   // index of current a element
+            bidx = 0,   // index of current b element
+            cmp;        // comparison result of aId with bId
 
         if (!araw || !braw) {return diff; }
 
@@ -41,11 +41,7 @@ module.exports = function (config) {
                 bId = id(b[bidx]);
                 cmp = compareId(aId, bId);
                 if (cmp === 0) {
-                    if (R.equals(a[aidx], b[bidx])) {
-                        identical.push(aId);
-                    } else {
-                        modified.push(aId);
-                    }
+                    (R.equals(a[aidx], b[bidx]) ? identical : modified).push(aId);
                     aidx += 1;
                     bidx += 1;
                 } else {
