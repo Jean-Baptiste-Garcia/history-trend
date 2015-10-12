@@ -3,24 +3,10 @@ module.exports = function (optKey) {
     'use strict';
     var R = require('ramda'),
         idKey = optKey || 'key',
-
         id = function (x) {return x[idKey]; },
-        sameId =  function (o1, o2) {return o1[idKey] === o2[idKey]; },
-        idOnly = R.map(id),
+        compareId = function (x, y) {return x.localeCompare(y); },
 
-        objectsInBothLists      = R.intersectionWith(sameId),
-        identicalObjects        = R.intersectionWith(R.equals),
-        objectsOnlyInFirstList  = R.differenceWith(sameId),
-
-        objectsIdInBothLists        = R.compose(idOnly, objectsInBothLists),
-        identicalObjectsId          = R.compose(idOnly, identicalObjects),
-        objectsIdOnlyInFirstList    = R.compose(idOnly, objectsOnlyInFirstList),
-
-        removed = objectsIdOnlyInFirstList,
-        added   = R.flip(objectsIdOnlyInFirstList);
-
-
-    function idSort(x, y) {return x[idKey].localeCompare(y[idKey]); }
+        sortObj = function (x, y) {return compareId(id(x), id(y)); };
 
 
     function diffAB(araw, braw) {
@@ -36,10 +22,12 @@ module.exports = function (optKey) {
             },
             a,
             b,
-            idA,
-            idB,
+            aId,
+            bId,
             aidx = 0,
             bidx = 0,
+            alen,
+            blen,
             cmp;
 
         if (!araw) {
@@ -47,50 +35,47 @@ module.exports = function (optKey) {
             return diff;
         } // FIXME should be handled in flux. not here
 
-        a = R.sort(idSort)(araw);
-        b = R.sort(idSort)(braw);
+        a = R.sort(sortObj)(araw);
+        b = R.sort(sortObj)(braw);
+        alen = a.length;
+        blen = b.length;
 
-        if (a.length !== 0 && b.length !== 0) {
+        if (alen !== 0 && blen !== 0) {
             while (true) {
-                idA = id(a[aidx]);
-                idB = id(b[bidx]);
-                cmp = idA.localeCompare(idB);
+                aId = id(a[aidx]);
+                bId = id(b[bidx]);
+                cmp = compareId(aId, bId);
                 if (cmp === 0) {
                     if (R.equals(a[aidx], b[bidx])) {
-                        identical.push(idA);
+                        identical.push(aId);
                     } else {
-                        modified.push(idA);
+                        modified.push(aId);
                     }
                     aidx += 1;
                     bidx += 1;
                 } else {
                     if (cmp > 0) {
-                        added.push(idB);
+                        added.push(bId);
                         bidx += 1;
                     } else {
-                        removed.push(idA);
+                        removed.push(aId);
                         aidx += 1;
                     }
                 }
-                if (aidx >= a.length || bidx >= b.length) { break; }
+                if (aidx >= alen || bidx >= blen) { break; }
             }
         }
 
-
-        if (aidx < a.length) {
-            while (aidx < a.length) {
-                idA = id(a[aidx]);
-                removed.push(idA);
-                aidx += 1;
-            }
+        while (aidx < alen) {
+            aId = id(a[aidx]);
+            removed.push(aId);
+            aidx += 1;
         }
 
-        if (bidx < b.length) {
-            while (bidx < b.length) {
-                idB = id(b[bidx]);
-                added.push(idB);
-                bidx += 1;
-            }
+        while (bidx < blen) {
+            bId = id(b[bidx]);
+            added.push(bId);
+            bidx += 1;
         }
 
         return diff;
