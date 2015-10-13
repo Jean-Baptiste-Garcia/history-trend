@@ -22,10 +22,10 @@ module.exports = function (config) {
             b,          // sorted
             alen,       // a.length
             blen,       // b.length
-            aId,        // id of current a element
-            bId,        // id of current b element
             aidx = 0,   // index of current a element
             bidx = 0,   // index of current b element
+            aId,        // id of current a element
+            bId,        // id of current b element
             cmp;        // comparison result of aId with bId
 
         if (!araw || !braw) {return diff; }
