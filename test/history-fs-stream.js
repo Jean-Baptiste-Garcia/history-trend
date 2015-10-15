@@ -351,37 +351,38 @@ describe('cached history-trend on fs store', function () {
             function append(delta) {
                 if (!trends) {return delta; }
                 if (!delta || delta.length === 1) {return trends; }
-                return trends.concat(delta.splice(1));
+                return trends.concat(delta.splice(1)); // remove lastdate which was already in cached trends (lastdate computation is needed to initialize flux)
             }
 
-            return function (cb) {
+            function computetrends(cb) {
                 function cachecb(err, delta) {
                     trends = append(delta);
                     lastdate = store.dategetter(trends[trends.length - 1]);
                     cb(err, trends);
                 }
                 query.fromStore(store, cachecb, lastdate);
+            }
+            return {
+                trends: computetrends
             };
         }
 
         it('computes timeserie and has same trends when store has not changed', function (done) {
             var q = cache(H.timeserie('status.sessionCount'), hs),
-               // q = H.timeserie('status.sessionCount').cache(hs), // a query can be cached in different stores
-                //q = hs.cache(H.timeserie('status.sessionCount')),
-                result1;
+                trends1;
 
-            q(function (err, timeserie) {
+            q.trends(function (err, trends) {
                 if (err) { return done(err); }
-                timeserie.should.eql([
+                trends.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
                     { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
                 ]);
-                result1 = timeserie;
+                trends1 = trends;
 
-                q(function (err2, timeserie) {
+                q.trends(function (err2, trends2) {
                     if (err2) { return done(err2); }
-                    timeserie.should.equal(result1);
+                    trends2.should.equal(trends1); // trends2 === trends1
                     done();
                 });
             });
@@ -389,13 +390,13 @@ describe('cached history-trend on fs store', function () {
         it('computes timeserie when new report added', function (done) {
             var q = cache(H.timeserie('status.sessionCount'), hs);
 
-            q(function (err, timeserie) {
+            q.trends(function (err, trends) {
                 if (err) {return done(err); }
                 hs.put({date: new Date('1995-12-20T05:44:10'), status: {sessionCount: 110, schemasCount: 20}}, function (err) {
                     if (err) {return done(err); }
-                    q(function (err, timeserie) {
+                    q.trends(function (err, trends) {
                         if (err) {return done(err); }
-                        timeserie.should.eql([
+                        trends.should.eql([
                             {date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                             {date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
                             {date: new Date('1995-12-19T05:44:10'), sessionCount: 102},
