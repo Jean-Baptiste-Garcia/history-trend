@@ -1,5 +1,5 @@
 /*jslint node: true*/
-/*global describe: true, it: true, beforeEach: true */
+/*global describe: true, it: true, beforeEach: true, afterEach: true */
 'use strict';
 
 var should = require('chai').should(),
@@ -20,7 +20,7 @@ describe('history-trend on fs store', function () {
 
         beforeEach(function startAndPopulateServer(done) {
             fse.removeSync(path.resolve(storageRoot));
-            hs = historystore(storageRoot).report('MyServer');
+            hs = historystore(storageRoot).open('MyServer');
 
             var reports = [
                     { date: new Date('1995-12-17T03:24:00'), status: {sessionCount: 100, schemasCount: 10}},
@@ -34,11 +34,13 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
+        afterEach(function () {
+            hs.close();
+        });
+
         it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
             H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -65,9 +67,7 @@ describe('history-trend on fs store', function () {
 
         it('computes chained timeserie h.f(k).f(k).fromStore(store, cb)', function (done) {
             H.timeserie('status.schemasCount').timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), schemasCount: 10, sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), schemasCount: 5,  sessionCount: 101},
@@ -82,9 +82,7 @@ describe('history-trend on fs store', function () {
                 return item.status.sessionCount + item.status.schemasCount;
             }
             H.timeserie(counter).fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), counter: 100 + 10},
                     { date: new Date('1995-12-18T04:44:10'), counter: 101 + 5},
@@ -101,7 +99,7 @@ describe('history-trend on fs store', function () {
 
         beforeEach(function startAndPopulateServer(done) {
             fse.removeSync(path.resolve(storageRoot));
-            hs = historystore(storageRoot).report('MyServer', 'creationdate');
+            hs = historystore(storageRoot).open('MyServer', 'creationdate');
 
             var reports = [
                     { creationdate: new Date('1995-12-17T03:24:00'), status: {sessionCount: 100, schemasCount: 10}},
@@ -115,11 +113,13 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
+        afterEach(function () {
+            hs.close();
+        });
+
         it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
             H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { creationdate: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -136,7 +136,7 @@ describe('history-trend on fs store', function () {
 
         beforeEach(function startAndPopulateServer(done) {
             fse.removeSync(path.resolve(storageRoot));
-            hs = historystore(storageRoot).report('MyServer', 'status.creationdate');
+            hs = historystore(storageRoot).open('MyServer', 'status.creationdate');
 
             var reports = [
                     { status: {creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10}},
@@ -150,11 +150,13 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
+        afterEach(function () {
+            hs.close();
+        });
+
         it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
             H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) { return done(err); }
                 timeserie.should.eql([
                     { creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { creationdate: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -171,7 +173,7 @@ describe('history-trend on fs store', function () {
 
         beforeEach(function startAndPopulateServer(done) {
             fse.removeSync(path.resolve(storageRoot));
-            hs = historystore(storageRoot).report('MyServer', function ddate(report) {return report.status.creationdate; });
+            hs = historystore(storageRoot).open('MyServer', function ddate(report) {return report.status.creationdate; });
 
             var reports = [
                     { status: {creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10}},
@@ -185,11 +187,13 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
+        afterEach(function () {
+            hs.close();
+        });
+
         it('can compute timeserie h.f(k).fromStore(store, cb)', function (done) {
             H.timeserie('status.sessionCount').fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) { return done(err); }
                 timeserie.should.eql([
                     { ddate: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { ddate: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -205,7 +209,7 @@ describe('history-trend on fs store', function () {
 
         beforeEach(function startAndPopulateServer(done) {
             fse.removeSync(path.resolve(storageRoot));
-            hs = historystore(storageRoot).report('MyServer', function (report) {return report.status.creationdate; });
+            hs = historystore(storageRoot).open('MyServer', function (report) {return report.status.creationdate; });
 
             var reports = [
                     { status: {creationdate: new Date('1995-12-17T03:24:00'), sessionCount: 100, schemasCount: 10}},
@@ -219,12 +223,14 @@ describe('history-trend on fs store', function () {
             }), done);
         });
 
+        afterEach(function () {
+            hs.close();
+        });
+
         it('computes timeserie h.f(k).fromStore(store, cb)', function (done) {
             var q = H.timeserie('status.sessionCount');
             q.fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -237,18 +243,14 @@ describe('history-trend on fs store', function () {
         it('h.f(k) can be used twice', function (done) {
             var q = H.timeserie('status.sessionCount');
             q.fromStore(hs, function (err, timeserie) {
-                if (err) {
-                    done(err);
-                }
+                if (err) {return done(err); }
                 timeserie.should.eql([
                     { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
                     { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
                 ]);
                 q.fromStore(hs, function (err, timeserie) {
-                    if (err) {
-                        done(err);
-                    }
+                    if (err) {return done(err); }
                     timeserie.should.eql([
                         { date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                         { date: new Date('1995-12-18T04:44:10'), sessionCount: 101},
@@ -263,7 +265,7 @@ describe('history-trend on fs store', function () {
     describe('computes flux', function () {
         it('when flux called after timeserie', function (done) {
             fse.removeSync(path.resolve(storageRoot));
-            var hs = historystore(storageRoot).report('MyServer'),
+            var hs = historystore(storageRoot).open('MyServer'),
                 reports = [
                     { date: new Date('1995-12-17T03:24:00'), x: 1, issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
                     { date: new Date('1995-12-18T03:24:00'), x: 2, issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}]},
@@ -276,13 +278,15 @@ describe('history-trend on fs store', function () {
                 function () {
                     H.timeserie('x').flux('issues').fromStore(hs, function (err, timeserie) {
                         if (err) {
-                            done(err);
+                            hs.close();
+                            return done(err);
                         }
                         timeserie.should.eql([
                             { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: [], removed: [], identical: [], modified: []}},
                             { date: new Date('1995-12-18T03:24:00'), x: 2, issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
                             { date: new Date('1995-12-20T03:24:00'), x: 3, issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
                         ]);
+                        hs.close();
                         done();
                     });
                 });
@@ -290,7 +294,7 @@ describe('history-trend on fs store', function () {
 
         it('when flux have options and is called after timeserie', function (done) {
             fse.removeSync(path.resolve(storageRoot));
-            var hs = historystore(storageRoot).report('MyServer'),
+            var hs = historystore(storageRoot).open('MyServer'),
                 reports = [
                     { date: new Date('1995-12-17T03:24:00'), x: 1, issues: [{ id: 'JIRA-123', status: 'New'}, { id: 'JIRA-456', status: 'In Progress'}]},
                     { date: new Date('1995-12-18T03:24:00'), x: 2, issues: [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'In Progress'}]},
@@ -307,13 +311,15 @@ describe('history-trend on fs store', function () {
                         modified: R.length
                     }).fromStore(hs, function (err, timeserie) {
                         if (err) {
-                            done(err);
+                            hs.close();
+                            return done(err);
                         }
                         timeserie.should.eql([
                             { date: new Date('1995-12-17T03:24:00'), x: 1, issues: {added: [], removed: [], identical: 0, modified: 0}},
                             { date: new Date('1995-12-18T03:24:00'), x: 2, issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
                             { date: new Date('1995-12-20T03:24:00'), x: 3, issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: 1, modified: 1}}
                         ]);
+                        hs.close();
                         done();
                     });
                 });
