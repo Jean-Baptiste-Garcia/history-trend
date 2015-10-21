@@ -170,7 +170,7 @@ For more details, please refer to [history-store](https://github.com/Jean-Baptis
 ```javascript
 var H = require('history-trend'),
     stores = require('history-store')('../history'),
-    store = stores.open('project');
+    store = stores.report('project');
  // trend returns the count of issues over time
  H.count('issues').fromStore(store, function (err, trends){} );
 ```
