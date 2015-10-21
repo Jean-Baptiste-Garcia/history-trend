@@ -162,19 +162,6 @@ Using custom functions is specially convenient when reports are raw and you need
 Count simply returns length of an array.
 
 
-### Using history-store
-Using history-store minimizes memory consumption, because reports are streamed to build trends.
-
-For more details, please refer to [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
-
-```javascript
-var H = require('history-trend'),
-    stores = require('history-store')('../history'),
-    store = stores.report('project');
- // trend returns the count of issues over time
- H.count('issues').fromStore(store, function (err, trends){} );
-```
-
 ### Chaining
 It is possible to chain all trends so that several trends can be computed in one call.
 ```javascript
@@ -206,6 +193,39 @@ H.timeserie(bugsCount).
 {date: new Date('2015-12-03T03:30:00'), bugsCount: 3, featuresCount: 1, issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
 ]
 ```
+
+
+## Using history-store
+Using history-store minimizes memory consumption, because reports are streamed to build trends. Furthermore, it is possible to cache trends results.
+
+For more details about stores, please refer to [history-store](https://github.com/Jean-Baptiste-Garcia/history-store).
+
+```javascript
+var H = require('history-trend'),
+    stores = require('history-store')('../history'),
+    store = stores.report('project');
+ // trend returns the count of issues over time
+ H.count('issues').fromStore(store, function (err, trends){} );
+```
+
+### Caching trends
+It is possible to cache trends results on file system, so trends computation is made only on new reports and when needed.
+It is required to name the trends so that trends are identified on file system.
+
+```javascript
+var H = require('history-trend'),
+    stores = require('history-store')('../history'),
+    store = stores.report('project'),
+    // an id is given to myTrends
+    myTrends = H.name({id: 'myTrends'}.count('issues').flux('issues'),
+    // and myTrends is cached into store
+    q = store.cache(myTrends);
+
+// Then to get latest trends
+    q.trends(function(err, trends) {});
+
+```
+
 
 Use Case
 ---------

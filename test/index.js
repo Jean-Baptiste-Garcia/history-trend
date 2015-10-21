@@ -3,6 +3,7 @@
 'use strict';
 
 var should = require('chai').should(),
+    assert = require('chai').assert,
     H = require('../index');
 
 describe('history-trend', function () {
@@ -524,5 +525,15 @@ describe('history-trend', function () {
             ]);
         });
 
+    });
+    describe('named queries', function () {
+        it('has id when defined', function () {
+            var q = H.name({id: 'myId'}).timeserie('sessionCount');
+            q.id.should.be.equal('myId');
+        });
+        it('has undefined id when not defined', function () {
+            var q = H.timeserie('sessionCount');
+            assert.isUndefined(q.id);
+        });
     });
 });

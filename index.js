@@ -142,7 +142,13 @@ module.exports = (function () {
                 return new Chain(Trends)[key](field, option);
             };
         }
-        return R.mapObjIndexed(makePublicTrend)(Trends);
+        var trends = R.mapObjIndexed(makePublicTrend)(Trends);
+        trends.name = function (desc) {
+            var chain = new Chain(Trends);
+            chain.id = desc.id;
+            return chain;
+        };
+        return trends;
     }
 
     return init({timeserie: TimeSerie, flux: Flux, fluxObj: FLuxObj,  count: Count});
