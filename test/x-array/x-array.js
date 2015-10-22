@@ -104,4 +104,21 @@ describe('array-diff with custom', function () {
         diff(b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
         shouldBeAntiSymetric(diff, neg, b, c);
     });
+
+    it('equality compares nominal arrays', function () {
+        var a = [{ id: 'JIRA-123', remaining: 10, status: 'New'}, { id: 'JIRA-456', remaining: 50, status: 'In Progress'}],
+            b = [{ id: 'JIRA-123', remaining: 10, status: 'In Progress'}, { id: 'JIRA-789', remaining: 10, status: 'In Progress'}],
+            c = [{ id: 'JIRA-123', remaining: 20, status: 'In Progress'}, { id: 'JIRA-789', remaining: 20, status: 'Done'}, { id: 'JIRA-900', remaining: 50, status: 'Done'}, { id: 'JIRA-901', remaining: 50, status: 'Done'}],
+            diff = xarray({
+                id: function (obj) {return obj.id; },
+                compareId: function (ida,  idb) { return ida.localeCompare(idb); },
+                equality: function (a, b) { return a.remaining === b.remaining; }
+            });
+
+        diff(a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: ['JIRA-123'], modified: []});
+        shouldBeAntiSymetric(diff, neg, a, b);
+        diff(b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']});
+        shouldBeAntiSymetric(diff, neg, b, c);
+    });
+
 });

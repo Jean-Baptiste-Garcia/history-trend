@@ -4,7 +4,8 @@ module.exports = function (config) {
     var R = require('ramda'),
         id = config.id,                 // function that returns id from obj
         compareId = config.compareId,   // function that compares id
-        compareObj = config.compareObj || function (x, y) {return compareId(id(x), id(y)); }; // function that compares objects (array sorting)
+        compareObj = config.compareObj || function (x, y) {return compareId(id(x), id(y)); }, // function that compares objects (array sorting)
+        equality = config.equality || R.equals; // are objects with same identity, identical or modified
 
 
     function diffAB(araw, braw) {
@@ -40,7 +41,7 @@ module.exports = function (config) {
             bId = id(b[bidx]);
             cmp = compareId(aId, bId);
             if (cmp === 0) {
-                (R.equals(a[aidx], b[bidx]) ? identical : modified).push(aId);
+                (equality(a[aidx], b[bidx]) ? identical : modified).push(aId);
                 aidx += 1;
                 bidx += 1;
             } else {
