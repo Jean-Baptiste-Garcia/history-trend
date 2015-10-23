@@ -55,8 +55,8 @@ H.flux(bugs).fromArray(reports);
 Note that name of trend is function name (bugs in our example). When function is anonymous, then trend is named 'value'.
 
 
-#### Identification method
-By default, when computing flux on object arrays, two objects are said to be identical when
+#### Identification / Equality methods
+By default, when computing flux on objects arrays, two objects are said to be identical when :
 
   1. They have same value for *key* property
   2. All others properties have same value
@@ -67,6 +67,14 @@ It is possible to change identification method. For instance, if issues are iden
 ```javascript
 H.flux('issues', {identification: 'id'}).fromArray(reports);
 ```
+You can also change equality method, so that modified list focuses on what you want to monitor. Here, only issues whose remaining work has changed are in modified array.
+```javascript
+H.flux('issues', {
+    equality: function (r1, r2) { return r1.remaining === r2.remaining; }}).fromArray(reports);
+
+```
+
+
 
 #### Custom output
 If you focus on movements (added/removed/modified), then you might be only interested in number of identical.

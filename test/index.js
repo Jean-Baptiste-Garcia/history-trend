@@ -379,6 +379,22 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('should work with custom equality', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', remaining: 10}, { key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
+                { date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 10}, { key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
+                { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 5}, { key: 'JIRA-789', status: 'Done', remaining: 0}, { key: 'JIRA-900', status: 'Done', remaining: 0}, { key: 'JIRA-901', status: 'Done', remaining: 0}]}
+            ];
+
+            H.flux('issues', {
+                equality: function (report1, report2) { return report1.remaining === report2.remaining; }
+            }).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: ['JIRA-123'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']}}
+            ]);
+        });
+
     });
 
     describe('count h.f(k).fromArray(d)', function () {
