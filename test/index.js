@@ -282,6 +282,20 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('should work on nested object using H.prop', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), status : {schemas: { user1: ['a'], user2: ['b'] }}},
+                { date: new Date('1995-12-18T03:24:00'), status : {schemas: { user1: ['a'], user3: ['c'] }}},
+                { date: new Date('1995-12-20T03:24:00'), status : {schemas: { user1: ['b'], user2: ['b'], user3: ['c'] }}}
+            ];
+
+            H.fluxObj(H.prop('status.schemas')).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), schemas: {added: [], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), schemas: {added: ['user3'], removed: ['user2'], identical: ['user1'], modified: []}},
+                { date: new Date('1995-12-20T03:24:00'), schemas: {added: ['user2'], removed: [], identical: ['user3'], modified: ['user1']}}
+            ]);
+        });
+
         it('should work with custom function', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), status : {schemas: { user1: ['a'], user2: ['b'] }}},
@@ -316,6 +330,20 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('should work on nominal data with H.prop', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
+                { date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}]},
+                { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}]}
+            ];
+
+            H.flux(H.prop('issues')).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
+                { date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
+            ]);
+        });
+
         it('should work on unsorted data', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-456', status: 'In Progress'}, { key: 'JIRA-123', status: 'New'}]},
@@ -344,7 +372,7 @@ describe('history-trend', function () {
             ]);
         });
 
-        it('should work with custom output', function () {
+        it('should work with identical & modified counter', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}]},
                 { date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}]},
@@ -352,8 +380,8 @@ describe('history-trend', function () {
             ];
 
             H.flux('issues', {
-                identical: function (identicals) { return identicals.length; },
-                modified:  function (modifieds) { return modifieds.length; }
+                identical: H.fluxCounter,
+                modified:  H.fluxCounter
             }).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
@@ -361,7 +389,8 @@ describe('history-trend', function () {
             ]);
         });
 
-        it('should work with custom identity and custom output', function () {
+
+        it('should work with custom identity and identical & modified counter', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ id: 'JIRA-123', status: 'New'}, { id: 'JIRA-456', status: 'In Progress'}]},
                 { date: new Date('1995-12-18T03:24:00'), issues: [{ id: 'JIRA-123', status: 'In Progress'}, { id: 'JIRA-789', status: 'In Progress'}]},
@@ -370,8 +399,8 @@ describe('history-trend', function () {
 
             H.flux('issues', {
                 identification: 'id',
-                identical: function (identicals) { return identicals.length; },
-                modified:  function (modifieds) { return modifieds.length; }
+                identical: H.fluxCounter,
+                modified: H.fluxCounter
             }).fromArray(data).should.eql([
                 { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: 0}},
                 { date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: 0, modified: 1}},
@@ -395,7 +424,40 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('should work with custom equality and variations', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', remaining: 10}, { key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
+                { date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 10}, { key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
+                { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 5}, { key: 'JIRA-789', status: 'Done', remaining: 0}, { key: 'JIRA-900', status: 'Done', remaining: 0}, { key: 'JIRA-901', status: 'Done', remaining: 0}]}
+            ];
+
+            H.flux('issues', {
+                equality: function (report1, report2) { return report1.remaining === report2.remaining; },
+                added: H.fluxVariation('remaining'),
+                removed: H.fluxVariation(H.prop('remaining')),
+                modified: H.fluxVariation(H.prop('remaining')),
+                identical: H.fluxCounter
+            }).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {
+                    added: [{key: 'JIRA-789', from: 0, to: 20, variation: 20}],
+                    removed: [{key: 'JIRA-456', from: 100, to: 0, variation: -100}],
+                    identical: 1,
+                    modified: []
+                }},
+                { date: new Date('1995-12-20T03:24:00'), issues: {
+                    added: [{key: 'JIRA-900', from: 0, to: 0, variation: 0},
+                            {key: 'JIRA-901', from: 0, to: 0, variation: 0}],
+                    removed: [],
+                    identical: 0,
+                    modified: [{key: 'JIRA-123', from: 10, to: 5, variation: -5},
+                               {key: 'JIRA-789', from: 20, to: 0, variation: -20}]
+                }}
+            ]);
+        });
+
     });
+
 
     describe('count h.f(k).fromArray(d)', function () {
         it('should count array length', function () {
@@ -540,8 +602,8 @@ describe('history-trend', function () {
                 {date: new Date('2015-12-03T03:30:00'), bugsCount: 3, featuresCount: 1, issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
             ]);
         });
-
     });
+
     describe('named queries', function () {
         it('has id when defined', function () {
             var q = H.name({id: 'myId'}).timeserie('sessionCount');

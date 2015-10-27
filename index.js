@@ -4,60 +4,16 @@ module.exports = (function () {
     'use strict';
     var Readable = require('stream').Readable,
         R = require('ramda'),
+        prop = require('./modules/prop/prop'),
         TimeSerie = require('./modules/timeserie/timeserie'),
         Count = require('./modules/count/count'),
         Flux = require('./modules/flux/flux'),
         FLuxObj  = require('./modules/flux/fluxObj'),
         Chain;
 
-
-    // returns last component of a path k1.k2.k3 --> k3
-    function lastPathComponent(path) {
-        var paths = path.split('.');
-        return paths[paths.length - 1];
+    function trendname(object, defaultname) {
+        return object.name || object.shortpropertyname || defaultname || 'value';
     }
-
-    function trendName(option, defaultname) {
-        if (!option) {return undefined; }
-        switch (typeof option) {
-        case 'string':
-            return lastPathComponent(option);
-        case 'function':
-            return option.name || defaultname || 'value';
-        default:
-            throw new Error('Unknown option type ' + typeof option);
-        }
-    }
-
-    // returns a function to access value for given a path
-    // path like 'key1.key2.key3' --> obj[key1][key2][key3]
-    function makePathGetter(path) {
-        var paths = path.split('.');
-
-        switch (paths.length) {
-        case 0:
-            throw 'bad path ' + path;
-        case 1:
-            return function (obj) { return obj[path]; };
-        case 2:
-            return function (obj) { return obj[paths[0]][paths[1]]; };
-        default:
-            return R.path(paths);
-        }
-    }
-
-    function makeGetter(field) {
-        if (!field) {return undefined; }
-        switch (typeof field) {
-        case 'string':
-            return makePathGetter(field);
-        case 'function':
-            return field;
-        default:
-            throw new Error('Unknown getter type ' + typeof field);
-        }
-    }
-
 
     function uniqueTrendNames(actions) {
         var moreThanOnceCounter = R.compose(
@@ -84,12 +40,11 @@ module.exports = (function () {
     */
     Chain = function (Trends) {
         var chain,
-            actions = [],
-            defaultdategetter = function (report) { return report.date; };
+            actions = [];
 
         function compute(cb, source, customdate) {
-            var datekey = trendName(customdate, 'date') || 'date',
-                dategetter = makeGetter(customdate) || defaultdategetter,
+            var dategetter = prop(customdate || 'date'),
+                datekey = trendname(dategetter, 'date'), // for anonymous function
                 namedactions = uniqueTrendNames(actions);
 
             function trendsValue(report) {
@@ -120,7 +75,8 @@ module.exports = (function () {
         // which simply pushes an action and returns chain
         function makeChainedTrend(Trend) {
             return function (field, option) {
-                actions.push({name: trendName(field), trendvalue: new Trend(makeGetter(field), option)});
+                var getter = prop(field);
+                actions.push({name: trendname(getter), trendvalue: new Trend(getter, option)});
                 return chain;
             };
         }
@@ -148,6 +104,11 @@ module.exports = (function () {
             chain.id = desc.id;
             return chain;
         };
+        Object.keys(require('./modules/flux/utils')).forEach(function (key) {
+            trends[key] = require('./modules/flux/utils')[key];
+        });
+        trends.prop = prop;
+
         return trends;
     }
 

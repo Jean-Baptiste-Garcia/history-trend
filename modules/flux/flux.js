@@ -7,12 +7,6 @@
 'use strict';
 var DiffArray = require('../x-array/x-array'),
     R = require('ramda'),
-    defaultTransformation = {
-        added: R.identity,
-        removed: R.identity,
-        modified: R.identity,
-        identical: R.identity
-    },
     defaultDiffConfig = {
         id: function (obj) {return obj.key; },
         compareId: function (ida,  idb) { return ida.localeCompare(idb); },
@@ -31,12 +25,15 @@ function diffConfig(options) {
                 R.clone(defaultDiffConfig);
 
     config.equality = options.equality;
+    config.added = options.added;
+    config.removed = options.removed;
+    config.identical = options.identical;
+    config.modified = options.modified;
     return config;
 }
 
-module.exports = function FLux(getter, options) {
-    var transformation = R.evolve(R.merge(defaultTransformation, options)),
-        diff = new DiffArray(diffConfig(options)),
+module.exports = function Flux(getter, options) {
+    var diff = new DiffArray(diffConfig(options)),
         lastValue;
 
     return function flux(report) {
@@ -45,7 +42,7 @@ module.exports = function FLux(getter, options) {
 
         fluxValue = diff(lastValue, currentValue);
         lastValue = currentValue;
-        return transformation(fluxValue);
+        return fluxValue;
     };
-
 };
+

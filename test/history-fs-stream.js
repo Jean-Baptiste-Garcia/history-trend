@@ -123,7 +123,6 @@ describe('history-trend on fs store', function () {
     });
 
     describe('with custom nested date', function () {
-
         var hs;
 
         beforeEach(function startAndPopulateServer(done) {
@@ -281,8 +280,8 @@ describe('history-trend on fs store', function () {
                 function () {
                     H.timeserie('x').flux('issues', {
                         identification: 'id',
-                        identical: R.length,
-                        modified: R.length
+                        identical: H.fluxCounter,
+                        modified: H.fluxCounter
                     }).fromStore(hs, function (err, timeserie) {
                         if (err) { return done(err); }
                         timeserie.should.eql([
