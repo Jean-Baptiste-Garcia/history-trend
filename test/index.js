@@ -389,7 +389,6 @@ describe('history-trend', function () {
             ]);
         });
 
-
         it('should work with custom identity and identical & modified counter', function () {
             var data = [
                 { date: new Date('1995-12-17T03:24:00'), issues: [{ id: 'JIRA-123', status: 'New'}, { id: 'JIRA-456', status: 'In Progress'}]},
@@ -455,7 +454,34 @@ describe('history-trend', function () {
                 }}
             ]);
         });
+    });
 
+    describe('variation flux on array', function () {
+        it('should work with number quantity', function () {
+            var data = [
+                { date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', remaining: 10}, { key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
+                { date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 10}, { key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
+                { date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 5}, { key: 'JIRA-789', status: 'Done', remaining: 0}, { key: 'JIRA-900', status: 'Done', remaining: 0}, { key: 'JIRA-901', status: 'Done', remaining: 0}]}
+            ];
+
+            H.variationFlux('issues', 'remaining').fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: []}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {
+                    added: [{key: 'JIRA-789', from: 0, to: 20, variation: 20}],
+                    removed: [{key: 'JIRA-456', from: 100, to: 0, variation: -100}],
+                    identical: 1,
+                    modified: []
+                }},
+                { date: new Date('1995-12-20T03:24:00'), issues: {
+                    added: [{key: 'JIRA-900', from: 0, to: 0, variation: 0},
+                            {key: 'JIRA-901', from: 0, to: 0, variation: 0}],
+                    removed: [],
+                    identical: 0,
+                    modified: [{key: 'JIRA-123', from: 10, to: 5, variation: -5},
+                               {key: 'JIRA-789', from: 20, to: 0, variation: -20}]
+                }}
+            ]);
+        });
     });
 
 

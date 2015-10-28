@@ -9,6 +9,7 @@ module.exports = (function () {
         Count = require('./modules/count/count'),
         Flux = require('./modules/flux/flux'),
         FLuxObj  = require('./modules/flux/fluxObj'),
+        VariationFlux = require('./modules/flux/variationFLux'),
         Chain;
 
     function trendname(object, defaultname) {
@@ -112,5 +113,5 @@ module.exports = (function () {
         return trends;
     }
 
-    return init({timeserie: TimeSerie, flux: Flux, fluxObj: FLuxObj,  count: Count});
+    return init({timeserie: TimeSerie, flux: Flux, fluxObj: FLuxObj, variationFlux: VariationFlux, count: Count});
 }());

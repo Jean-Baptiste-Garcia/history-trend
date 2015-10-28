@@ -75,23 +75,72 @@ H.flux('issues', {
 ```
 
 
-
 #### Custom output
 If you focus on movements (added/removed/modified), then you might be only interested in number of identical.
 
-You can define functions to be applied on identical/modified/added/removed before flux returns :
+You can use predefined functions on each object found identical/modified/added/removed. For instance :
 ```javascript
-H.flux('issues',{
-    identical: function (identicals) { return identicals.length; }
+H.flux('issues', {
+    identical: H.fluxCounter, // counts each object found identical
+    modified:  H.fluxCounter // counts each object found modified
  }).fromArray(reports);
+
 // returns
 [
- {date: 'Tue Dec 01 2015 04:24:00', issues: { added: [], removed: [], modified: [], identical: 0}},
- {date: 'Wed Dec 02 2015 04:22:00', issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: ['JIRA-123'], identical: 0}},
- {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: 1}}
+ {date: 'Tue Dec 01 2015 04:24:00', issues: { added: [], removed: [], modified: 0, identical: 0}},
+ {date: 'Wed Dec 02 2015 04:22:00', issues: { added: ['JIRA-789'], removed: ['JIRA-456'], modified: 1, identical: 0}},
+ {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: 1, identical: 1}}
  ]
 ```
+Others predefined functions are :
+* ```H.fluxLister``` which returns usual array of keys
+* ```H.fluxVariation('remaining')``` which returns array of key with variation of ```remaining``` value
 
+You can use custom functions provided they comply with:
+* ```function output(id, o1, o2)``` should process new comparison event like o2 added, o1 removed, (o1, o2) identical, (o1,o2) modified
+* ```function output()``` should return output value
+
+```javascript
+function makecounter() {
+    var count = 0;
+    return function output(id, o1, o2) {
+        if (id) {count += 1; }
+        return count;
+    };
+};
+```
+### Variation Flux
+To be used when you need to explain variation of a given consolidated quantity. For instance, why does remaining work keeps on increasing ? Knowing that remaining work is the sum of many tasks and that some tasks are added or that a task can have its workload increased.
+
+```javascript
+var data = [
+    {date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', remaining: 10}, { key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
+    {date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 10}, { key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
+    {date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 5}, { key: 'JIRA-789', status: 'Done', remaining: 0}, { key: 'JIRA-900', status: 'Done', remaining: 0}, { key: 'JIRA-901', status: 'Done', remaining: 0}]}];
+
+// issuing
+H.variationFlux('issues', 'remaining').fromArray(data);
+
+// returns
+[
+    {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: []}},
+    {date: new Date('1995-12-18T03:24:00'), issues: {
+        added: [{key: 'JIRA-789', from: 0, to: 20, variation: 20}],
+        removed: [{key: 'JIRA-456', from: 100, to: 0, variation: -100}],
+        identical: 1,
+        modified: []
+    }},
+    {date: new Date('1995-12-20T03:24:00'), issues: {
+        added: [{key: 'JIRA-900', from: 0, to: 0, variation: 0},
+                {key: 'JIRA-901', from: 0, to: 0, variation: 0}],
+        removed: [],
+        identical: 0,
+        modified: [{key: 'JIRA-123', from: 10, to: 5, variation: -5},
+                   {key: 'JIRA-789', from: 20, to: 0, variation: -20}]
+    }}
+]
+
+```
 ### Object Flux
 In case you need to compute flux on Map like object. In below example, objects to compare have username as key and an array of resources as value.
 fluxObj compares key/values of each object and :
