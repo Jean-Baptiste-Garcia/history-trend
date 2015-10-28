@@ -110,20 +110,30 @@ function makecounter() {
 };
 ```
 ### Variation Flux
-To be used when you need to explain variation of a given consolidated quantity. For instance, why does remaining work keeps on increasing ? Knowing that remaining work is the sum of many tasks and that some tasks are added or that a task can have its workload increased.
+To be used when you need to explain variation of a numeric consolidated quantity. For instance, why does remaining work keeps on increasing ? Knowing that remaining work is the sum of many tasks and that some tasks are added or that a task can have its workload increased.
 
 ```javascript
 var data = [
-    {date: new Date('1995-12-17T03:24:00'), issues: [{ key: 'JIRA-123', status: 'New', remaining: 10}, { key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
-    {date: new Date('1995-12-18T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 10}, { key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
-    {date: new Date('1995-12-20T03:24:00'), issues: [{ key: 'JIRA-123', status: 'In Progress', remaining: 5}, { key: 'JIRA-789', status: 'Done', remaining: 0}, { key: 'JIRA-900', status: 'Done', remaining: 0}, { key: 'JIRA-901', status: 'Done', remaining: 0}]}];
+    {date: new Date('1995-12-17T03:24:00'), issues: [
+        {key: 'JIRA-123', status: 'New', remaining: 10},
+        {key: 'JIRA-456', status: 'In Progress', remaining: 100}]},
+    {date: new Date('1995-12-18T03:24:00'), issues: [
+        {key: 'JIRA-123', status: 'In Progress', remaining: 10},
+        {key: 'JIRA-789', status: 'In Progress', remaining: 20}]},
+    {date: new Date('1995-12-20T03:24:00'), issues: [
+        {key: 'JIRA-123', status: 'In Progress', remaining: 5},
+        {key: 'JIRA-789', status: 'Done', remaining: 0},
+        {key: 'JIRA-900', status: 'Done', remaining: 0},
+        {key: 'JIRA-901', status: 'Done', remaining: 0}]}];
 
 // issuing
 H.variationFlux('issues', 'remaining').fromArray(data);
 
 // returns
 [
-    {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: 0, modified: []}},
+    {date: new Date('1995-12-17T03:24:00'), issues: {
+        added: [], removed: [], identical: 0, modified: []
+    }},
     {date: new Date('1995-12-18T03:24:00'), issues: {
         added: [{key: 'JIRA-789', from: 0, to: 20, variation: 20}],
         removed: [{key: 'JIRA-456', from: 100, to: 0, variation: -100}],
