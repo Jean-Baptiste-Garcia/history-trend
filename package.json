@@ -1,6 +1,6 @@
 {
     "name": "history-trend",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "Compute historic trends",
     "main": "index.js",
     "scripts": {
