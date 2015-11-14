@@ -39,7 +39,7 @@ module.exports = function Flux(getter, options) {
         var currentValue = getter(report),
             fluxValue;
 
-        fluxValue = diff(lastValue, currentValue, diffConfig(options));
+        fluxValue = diff(diffConfig(options), lastValue, currentValue);
         lastValue = currentValue;
         return fluxValue;
     };

@@ -1,6 +1,6 @@
 /*jslint node: true */
 
-module.exports = function (araw, braw, listener, config) {
+module.exports = function (config, araw, braw, listener) {
     'use strict';
     var R = require('ramda'),
         id = config.id,                 // returns id from obj

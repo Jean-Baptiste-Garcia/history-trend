@@ -4,7 +4,7 @@
 
 var should = require('chai').should(),
     diff = require('../../modules/x-array/x-array'),
-    keyDiff = {
+    spec = {
         id: function (obj) {return obj.key; },
         compareId: function (ida,  idb) { return ida.localeCompare(idb); },
         compareObj: function (obja, objb) {return obja.key.localeCompare(objb.key); }
@@ -20,7 +20,7 @@ function neg(diff) {
 }
 
 function shouldBeAntiSymetric(config, negate, a, b) {
-    diff(a, b, config).should.eql(negate(diff(b, a, config)));
+    diff(config, a, b).should.eql(negate(diff(config, b, a)));
 }
 
 
@@ -30,27 +30,27 @@ describe('array-diff', function () {
             b = [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}],
             c = [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}];
 
-        diff(a, b, keyDiff).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
-        shouldBeAntiSymetric(keyDiff, neg, a, b);
-        diff(b, c, keyDiff).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
-        shouldBeAntiSymetric(keyDiff, neg, b, c);
+        diff(spec, a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
+        shouldBeAntiSymetric(spec, neg, a, b);
+        diff(spec, b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
+        shouldBeAntiSymetric(spec, neg, b, c);
     });
 
     it('is reflexive', function () {
         var a = [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}],
             b = [{ key: 'JIRA-783', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-100', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}];
 
-        diff(a, a, keyDiff).should.eql({added: [], removed: [], identical: ['JIRA-123', 'JIRA-456'], modified: []});
-        diff(b, b, keyDiff).should.eql({added: [], removed: [], identical: [ 'JIRA-100', 'JIRA-783', 'JIRA-789', 'JIRA-901'], modified: []});
+        diff(spec, a, a).should.eql({added: [], removed: [], identical: ['JIRA-123', 'JIRA-456'], modified: []});
+        diff(spec, b, b).should.eql({added: [], removed: [], identical: [ 'JIRA-100', 'JIRA-783', 'JIRA-789', 'JIRA-901'], modified: []});
     });
 
     it('works with empty arrays', function () {
         var a = [{ key: 'JIRA-123', status: 'New'}, { key: 'JIRA-456', status: 'In Progress'}],
             b = [{ key: 'JIRA-783', status: 'In Progress'}, { key: 'JIRA-789', status: 'Done'}, { key: 'JIRA-100', status: 'Done'}, { key: 'JIRA-901', status: 'Done'}];
 
-        diff(a, [], keyDiff).should.eql({added: [], removed: ['JIRA-123', 'JIRA-456'], identical: [], modified: []});
-        shouldBeAntiSymetric(keyDiff, neg, a, []);
-        diff([], [], keyDiff).should.eql({added: [], removed: [], identical: [], modified: []});
+        diff(spec, a, []).should.eql({added: [], removed: ['JIRA-123', 'JIRA-456'], identical: [], modified: []});
+        shouldBeAntiSymetric(spec, neg, a, []);
+        diff(spec, [], []).should.eql({added: [], removed: [], identical: [], modified: []});
     });
 
 
@@ -60,13 +60,13 @@ describe('array-diff', function () {
             [{ key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-789', status: 'In Progress'}],
             [{ key: 'JIRA-900', status: 'Done'}, { key: 'JIRA-123', status: 'In Progress'}, { key: 'JIRA-901', status: 'Done'}, { key: 'JIRA-789', status: 'Done'}]
         ];
-        diff([], data[0], keyDiff).should.eql({added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []});
-        shouldBeAntiSymetric(keyDiff, neg, [], data[0]);
-        diff(data[0], data[1], keyDiff).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
-        shouldBeAntiSymetric(keyDiff, neg, data[0], data[1]);
-        diff(data[1], data[2], keyDiff).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
-        shouldBeAntiSymetric(keyDiff, neg, data[1], data[2]);
-        shouldBeAntiSymetric(keyDiff, neg, data[0], data[2]);
+        diff(spec, [], data[0]).should.eql({added: ['JIRA-123', 'JIRA-456'], removed: [], identical: [], modified: []});
+        shouldBeAntiSymetric(spec, neg, [], data[0]);
+        diff(spec, data[0], data[1]).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
+        shouldBeAntiSymetric(spec, neg, data[0], data[1]);
+        diff(spec, data[1], data[2]).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
+        shouldBeAntiSymetric(spec, neg, data[1], data[2]);
+        shouldBeAntiSymetric(spec, neg, data[0], data[2]);
     });
 });
 
@@ -81,9 +81,9 @@ describe('array-diff with custom', function () {
                 compareObj: function (obja, objb) {return obja.id.localeCompare(objb.id); }
             };
 
-        diff(a, b, config).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
+        diff(config, a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
         shouldBeAntiSymetric(config, neg, a, b);
-        diff(b, c, config).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
+        diff(config, b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
         shouldBeAntiSymetric(config, neg, b, c);
     });
 
@@ -96,9 +96,9 @@ describe('array-diff with custom', function () {
                 compareId: function (ida,  idb) { return ida.localeCompare(idb); }
             };
 
-        diff(a, b, config).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
+        diff(config, a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']});
         shouldBeAntiSymetric(config, neg, a, b);
-        diff(b, c, config).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
+        diff(config, b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']});
         shouldBeAntiSymetric(config, neg, b, c);
     });
 
@@ -112,9 +112,9 @@ describe('array-diff with custom', function () {
                 equality: function (a, b) { return a.remaining === b.remaining; }
             };
 
-        diff(a, b, config).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: ['JIRA-123'], modified: []});
+        diff(config, a, b).should.eql({added: ['JIRA-789'], removed: ['JIRA-456'], identical: ['JIRA-123'], modified: []});
         shouldBeAntiSymetric(config, neg, a, b);
-        diff(b, c, config).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']});
+        diff(config, b, c).should.eql({added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']});
         shouldBeAntiSymetric(config, neg, b, c);
     });
 

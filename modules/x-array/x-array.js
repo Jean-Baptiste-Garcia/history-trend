@@ -48,9 +48,9 @@ function makelistener(config) {
 }
 
 
-module.exports = function (araw, braw, config) {
+module.exports = function (spec, araw, braw) {
     'use strict';
-    var listener = makelistener(config);
-    diff(araw, braw, listener, config);
+    var listener = makelistener(spec);
+    diff(spec, araw, braw, listener);
     return listener.value();
 };
