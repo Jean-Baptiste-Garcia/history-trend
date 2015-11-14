@@ -5,7 +5,7 @@
 
 /*jslint node: true */
 'use strict';
-var diff = require('../x-array/x-array'),
+var diff = require('../x-array/x-array-default'),
     R = require('ramda'),
     defaultDiffConfig = {
         id: function (obj) {return obj.key; },

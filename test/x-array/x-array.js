@@ -3,7 +3,7 @@
 'use strict';
 
 var should = require('chai').should(),
-    diff = require('../../modules/x-array/x-array'),
+    diff = require('../../modules/x-array/x-array-default'),
     spec = {
         id: function (obj) {return obj.key; },
         compareId: function (ida,  idb) { return ida.localeCompare(idb); },
@@ -22,7 +22,6 @@ function neg(diff) {
 function shouldBeAntiSymetric(config, negate, a, b) {
     diff(config, a, b).should.eql(negate(diff(config, b, a)));
 }
-
 
 describe('array-diff', function () {
     it('can compare nominal arrays', function () {
