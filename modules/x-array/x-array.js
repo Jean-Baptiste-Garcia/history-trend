@@ -1,5 +1,8 @@
 /*jslint node: true */
 
+var R = require('ramda'),
+    diff = require('./x-array-raw');
+
 function lister() {
     'use strict';
     var ids = [];
@@ -11,26 +14,20 @@ function lister() {
 
 function makelistener(config) {
     'use strict';
-    var fadded      = config.added      || lister,
-        fremoved    = config.removed    || lister,
-        fidentical  = config.identical  || lister,
-        fmodified   = config.modified   || lister,
-        added,
+    var added,
         removed,
         identical,
         modified,
         diff;
 
     function begin() {
-        //console.log('begin');
-        added       = fadded();
-        removed     = fremoved();
-        identical   = fidentical();
-        modified    = fmodified();
+        added       = (config.added      || lister)();
+        removed     = (config.removed    || lister)();
+        identical   = (config.identical  || lister)();
+        modified    = (config.modified   || lister)();
     }
 
     function end() {
-        //console.log('end');
         diff = {
             added:      added(),
             removed:    removed(),
@@ -51,23 +48,9 @@ function makelistener(config) {
 }
 
 
-module.exports = function (config) {
+module.exports = function (araw, braw, config) {
     'use strict';
-    var R = require('ramda'),
-        Diff = require('./x-array-raw'),
-        id = config.id,                 // function that returns id from obj
-        compareId   = config.compareId, // function that compares id
-        compareObj  = config.compareObj || function (x, y) {return compareId(id(x), id(y)); }, // function that compares objects (array sorting)
-        equality    = config.equality   || R.equals; // are objects with same identity, identical or modified ?
-
-
-    function diffAB(araw, braw) {
-        //console.log('diff', araw, braw);
-        var listener = makelistener(config);
-        config.listener = listener;
-        new Diff(config)(araw, braw);
-        return listener.value();
-    }
-
-    return diffAB;
+    var listener = makelistener(config);
+    diff(araw, braw, listener, config);
+    return listener.value();
 };

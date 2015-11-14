@@ -5,7 +5,7 @@
 
 /*jslint node: true */
 'use strict';
-var DiffArray = require('../x-array/x-array'),
+var diff = require('../x-array/x-array'),
     R = require('ramda'),
     defaultDiffConfig = {
         id: function (obj) {return obj.key; },
@@ -33,14 +33,13 @@ function diffConfig(options) {
 }
 
 module.exports = function Flux(getter, options) {
-    var diff = new DiffArray(diffConfig(options)),
-        lastValue;
+    var lastValue;
 
     return function flux(report) {
         var currentValue = getter(report),
             fluxValue;
 
-        fluxValue = diff(lastValue, currentValue);
+        fluxValue = diff(lastValue, currentValue, diffConfig(options));
         lastValue = currentValue;
         return fluxValue;
     };
