@@ -113,5 +113,12 @@ module.exports = (function () {
         return trends;
     }
 
-    return init({timeserie: TimeSerie, flux: Flux, fluxObj: FLuxObj, variationFlux: VariationFlux, count: Count});
+    return init({
+        timeserie: TimeSerie,
+        flux: Flux,
+        fluxObj: FLuxObj,
+        variationFlux: VariationFlux,
+        transition: require('./modules/transition/transition'),
+        count: Count
+    });
 }());

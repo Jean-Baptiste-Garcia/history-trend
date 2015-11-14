@@ -484,7 +484,6 @@ describe('history-trend', function () {
         });
     });
 
-
     describe('transition flux on array', function () {
         it('should work with status change', function () {
             var data = [
@@ -552,7 +551,6 @@ describe('history-trend', function () {
             ]);
         });
     });
-
 
     describe('count h.f(k).fromArray(d)', function () {
         it('should count array length', function () {
