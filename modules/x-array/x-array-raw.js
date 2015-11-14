@@ -1,12 +1,29 @@
+/*
+    List Comparator defined by a spec object :
+        id          : function that returns identity from object to compare
+        compareId   : function that compare object id
+        [compareObj]: function to sort objects
+        [equality]  : function that compares two objects with same identity
+
+    Comparison events are sent to a listener that must implement these functions :
+        beginComparison : called when comparison begins
+        identical       : called when two objects are identical : id, objA, objB
+        modified        : called when two objects are different : id, objA, objB
+        added           : called when one object is added : id, obj
+        removed         : called when one object is removed : id, obj
+        endComparison   : called when comparison ends
+
+*/
+
 /*jslint node: true */
 
-module.exports = function (config, araw, braw, listener) {
+module.exports = function (spec, araw, braw, listener) {
     'use strict';
     var R = require('ramda'),
-        id = config.id,                 // returns id from obj
-        compareId   = config.compareId, // compares id
-        compareObj  = config.compareObj || function (x, y) {return compareId(id(x), id(y)); }, //  compares objects (array sorting)
-        equality    = config.equality   || R.equals, // are objects with same identity, identical or modified ?
+        id = spec.id,
+        compareId   = spec.compareId,
+        compareObj  = spec.compareObj || function (x, y) {return compareId(id(x), id(y)); },
+        equality    = spec.equality   || R.equals,
         a,          // sorted
         b,          // sorted
         alen,       // a.length
