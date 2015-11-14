@@ -5,11 +5,6 @@ module.exports = (function () {
     var Readable = require('stream').Readable,
         R = require('ramda'),
         prop = require('./modules/prop/prop'),
-        TimeSerie = require('./modules/timeserie/timeserie'),
-        Count = require('./modules/count/count'),
-        Flux = require('./modules/flux/flux'),
-        FLuxObj  = require('./modules/flux/fluxObj'),
-        VariationFlux = require('./modules/flux/variationFLux'),
         Chain;
 
     function trendname(object, defaultname) {
@@ -114,11 +109,11 @@ module.exports = (function () {
     }
 
     return init({
-        timeserie: TimeSerie,
-        flux: Flux,
-        fluxObj: FLuxObj,
-        variationFlux: VariationFlux,
-        transition: require('./modules/transition/transition'),
-        count: Count
+        timeserie:      require('./modules/timeserie/timeserie'),
+        flux:           require('./modules/flux/flux'),
+        fluxObj:        require('./modules/flux/fluxObj'),
+        variationFlux:  require('./modules/flux/variationFLux'),
+        transition:     require('./modules/transition/transition'),
+        count:          require('./modules/count/count')
     });
 }());

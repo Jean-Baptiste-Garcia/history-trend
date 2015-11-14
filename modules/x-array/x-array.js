@@ -1,11 +1,11 @@
 /*
     List Comparator defined by a spec object :
         id          : function that returns identity from object to compare
-        compareId   : function that compare object id
+        compareId   : function that compares object id
         [compareObj]: function to sort objects
         [equality]  : function that compares two objects with same identity
 
-    Comparison events are sent to a listener that must implement these functions :
+    Comparison events are notified to a listener via these functions :
         beginComparison : called when comparison begins
         identical       : called when two objects are identical : id, objA, objB
         modified        : called when two objects are different : id, objA, objB
@@ -17,6 +17,8 @@
 
 /*jslint node: true */
 
+function nop() {'use strict'; }
+
 module.exports = function (spec, araw, braw, listener) {
     'use strict';
     var R = require('ramda'),
@@ -24,6 +26,14 @@ module.exports = function (spec, araw, braw, listener) {
         compareId   = spec.compareId,
         compareObj  = spec.compareObj || function (x, y) {return compareId(id(x), id(y)); },
         equality    = spec.equality   || R.equals,
+
+        beginComparison = listener.beginComparison || nop,
+        identical = listener.identical || nop,
+        modified = listener.modified || nop,
+        added = listener.added || nop,
+        removed = listener.removed || nop,
+        endComparison = listener.endComparison || nop,
+
         a,          // sorted
         b,          // sorted
         alen,       // a.length
@@ -34,10 +44,10 @@ module.exports = function (spec, araw, braw, listener) {
         bId,        // id of current b element
         cmp;        // comparison result of aId with bId
 
-    listener.beginComparison();
+    beginComparison();
 
     if (!araw || !braw) {
-        return listener.endComparison();
+        return endComparison();
     }
 
     a = R.sort(compareObj)(araw);
@@ -50,15 +60,15 @@ module.exports = function (spec, araw, braw, listener) {
         bId = id(b[bidx]);
         cmp = compareId(aId, bId);
         if (cmp === 0) {
-            (equality(a[aidx], b[bidx]) ? listener.identical : listener.modified)(aId, a[aidx], b[bidx]);
+            (equality(a[aidx], b[bidx]) ? identical : modified)(aId, a[aidx], b[bidx]);
             aidx += 1;
             bidx += 1;
         } else {
             if (cmp > 0) {
-                listener.added(bId, b[bidx]);
+                added(bId, b[bidx]);
                 bidx += 1;
             } else {
-                listener.removed(aId, a[aidx]);
+                removed(aId, a[aidx]);
                 aidx += 1;
             }
         }
@@ -66,15 +76,15 @@ module.exports = function (spec, araw, braw, listener) {
 
     while (aidx < alen) {
         aId = id(a[aidx]);
-        listener.removed(aId, a[aidx]);
+        removed(aId, a[aidx]);
         aidx += 1;
     }
 
     while (bidx < blen) {
         bId = id(b[bidx]);
-        listener.added(bId, b[bidx]);
+        added(bId, b[bidx]);
         bidx += 1;
     }
 
-    return listener.endComparison();
+    return endComparison();
 };
