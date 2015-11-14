@@ -28,7 +28,7 @@ function makelistener(config) {
     }
 
     function end() {
-        diff = {
+        return {
             added:      added(),
             removed:    removed(),
             identical:  identical(),
@@ -42,15 +42,12 @@ function makelistener(config) {
         modified: function (id, a, b) { return modified(id, a, b); },
         added: function (id, obj) {added(id, undefined, obj); },
         removed: function (id, obj) {removed(id, obj, undefined); },
-        endComparison: end,
-        value: function () {return diff; }
+        endComparison: end
     };
 }
 
 
 module.exports = function (spec, araw, braw) {
     'use strict';
-    var listener = makelistener(spec);
-    diff(spec, araw, braw, listener);
-    return listener.value();
+    return diff(spec, araw, braw, makelistener(spec));
 };

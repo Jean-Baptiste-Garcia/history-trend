@@ -59,5 +59,5 @@ module.exports = function (config, araw, braw, listener) {
         bidx += 1;
     }
 
-    listener.endComparison();
+    return listener.endComparison();
 };
