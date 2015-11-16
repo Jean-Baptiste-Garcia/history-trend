@@ -151,6 +151,79 @@ H.variationFlux('issues', 'remaining').fromArray(data);
 ]
 
 ```
+
+### Transitions
+You need to study dynamic of status transition in time.
+
+```javascript
+ var data = [
+    {date: new Date('1995-12-17T03:24:00'), issues: [
+        //identical
+        {key: 'JIRA-100', status: 'New'},
+        {key: 'JIRA-101', status: 'In Progress'},
+        {key: 'JIRA-102', status: 'Done'},
+        //removed
+        {key: 'JIRA-200', status: 'New'},
+        {key: 'JIRA-201', status: 'In Progress'},
+        {key: 'JIRA-202', status: 'Done'},
+        //modified
+        {key: 'JIRA-400', status: 'New'},
+        {key: 'JIRA-401', status: 'In Progress'},
+        {key: 'JIRA-402', status: 'Done'},
+        {key: 'JIRA-403', status: 'New'},
+        // misc
+        {key: 'JIRA-500', status: 'New'}
+    ]},
+    {date: new Date('1995-12-18T03:24:00'), issues: [
+        // identical
+        {key: 'JIRA-100', status: 'New'},
+        {key: 'JIRA-101', status: 'In Progress'},
+        {key: 'JIRA-102', status: 'Done'},
+        // added
+        {key: 'JIRA-300', status: 'New'},
+        {key: 'JIRA-301', status: 'In Progress'},
+        {key: 'JIRA-302', status: 'Done'},
+        //modified
+        {key: 'JIRA-400', status: 'In Progress'},
+        {key: 'JIRA-401', status: 'Done'},
+        {key: 'JIRA-402', status: 'New'},
+        {key: 'JIRA-403', status: 'Done'},
+        // misc
+        {key: 'JIRA-500', status: 'In Progress'}
+    ]}
+];
+
+H.transition('issues', 'status').fromArray(data);
+// returns
+[
+    { date: new Date('1995-12-17T03:24:00'), issues: {}},
+    { date: new Date('1995-12-18T03:24:00'), issues: {
+        New: {
+            New: ['JIRA-100'],
+            out: ['JIRA-200'],
+            'In Progress': ['JIRA-400', 'JIRA-500'],
+            Done: ['JIRA-403']
+        },
+        'In Progress': {
+            'In Progress': ['JIRA-101'],
+            out: ['JIRA-201'],
+            Done: ['JIRA-401']
+        },
+        'Done': {
+            Done: ['JIRA-102'],
+            out: ['JIRA-202'],
+            New: ['JIRA-402']
+        },
+        'out': {
+            New: ['JIRA-300'],
+            'In Progress': ['JIRA-301'],
+            Done: ['JIRA-302']
+        }
+    }}
+]
+```
+
+
 ### Object Flux
 In case you need to compute flux on Map like object. In below example, objects to compare have username as key and an array of resources as value.
 fluxObj compares key/values of each object and :
