@@ -550,6 +550,105 @@ describe('history-trend', function () {
                 }}
             ]);
         });
+
+        it('should work with custom filter', function () {
+            var data = [
+                {date: new Date('1995-12-17T03:24:00'), issues: [
+                    //identical
+                    {key: 'JIRA-100', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-101', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-102', status: 'Done', type: 'Bug'},
+                    //removed
+                    {key: 'JIRA-200', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-201', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-202', status: 'Done', type: 'Bug'},
+                    //modified
+                    {key: 'JIRA-400', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-401', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-402', status: 'Done', type: 'Bug'},
+                    {key: 'JIRA-403', status: 'New', type: 'Bug'},
+                    // misc
+                    {key: 'JIRA-500', status: 'New', type: 'Bug'},
+                                        //identical
+                    {key: 'JIRF-100', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-101', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-102', status: 'Done', type: 'Feature'},
+                    //removed
+                    {key: 'JIRF-200', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-201', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-202', status: 'Done', type: 'Feature'},
+                    //modified
+                    {key: 'JIRF-400', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-401', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-402', status: 'Done', type: 'Feature'},
+                    {key: 'JIRF-403', status: 'New', type: 'Feature'},
+                    // misc
+                    {key: 'JIRF-500', status: 'New', type: 'Feature'}
+                ]},
+                {date: new Date('1995-12-18T03:24:00'), issues: [
+                    // identical
+                    {key: 'JIRA-100', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-101', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-102', status: 'Done', type: 'Bug'},
+                    // added
+                    {key: 'JIRA-300', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-301', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-302', status: 'Done', type: 'Bug'},
+                    //modified
+                    {key: 'JIRA-400', status: 'In Progress', type: 'Bug'},
+                    {key: 'JIRA-401', status: 'Done', type: 'Bug'},
+                    {key: 'JIRA-402', status: 'New', type: 'Bug'},
+                    {key: 'JIRA-403', status: 'Done', type: 'Bug'},
+                    // misc
+                    {key: 'JIRA-500', status: 'In Progress', type: 'Bug'},
+                    // identical
+                    {key: 'JIRF-100', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-101', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-102', status: 'Done', type: 'Feature'},
+                    // added
+                    {key: 'JIRF-300', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-301', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-302', status: 'Done', type: 'Feature'},
+                    //modified
+                    {key: 'JIRF-400', status: 'In Progress', type: 'Feature'},
+                    {key: 'JIRF-401', status: 'Done', type: 'Feature'},
+                    {key: 'JIRF-402', status: 'New', type: 'Feature'},
+                    {key: 'JIRF-403', status: 'Done', type: 'Feature'},
+                    // misc
+                    {key: 'JIRF-500', status: 'In Progress', type: 'Feature'}
+                ]}
+            ];
+
+            H.transition('issues', {
+                transitionField: 'status',
+                filter: function (issue) {return issue.type === 'Bug'; }
+            }).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {
+                    New: {
+                        New: ['JIRA-100'],
+                        out: ['JIRA-200'],
+                        'In Progress': ['JIRA-400', 'JIRA-500'],
+                        Done: ['JIRA-403']
+                    },
+                    'In Progress': {
+                        'In Progress': ['JIRA-101'],
+                        out: ['JIRA-201'],
+                        Done: ['JIRA-401']
+                    },
+                    'Done': {
+                        Done: ['JIRA-102'],
+                        out: ['JIRA-202'],
+                        New: ['JIRA-402']
+                    },
+                    'out': {
+                        New: ['JIRA-300'],
+                        'In Progress': ['JIRA-301'],
+                        Done: ['JIRA-302']
+                    }
+                }}
+            ]);
+        });
     });
 
     describe('count h.f(k).fromArray(d)', function () {

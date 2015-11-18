@@ -52,6 +52,11 @@ module.exports = function (spec, araw, braw, listener) {
 
     a = R.sort(compareObj)(araw);
     b = R.sort(compareObj)(braw);
+    if (spec.filter) {
+        a = a.filter(spec.filter);
+        b = b.filter(spec.filter);
+    }
+
     alen = a.length;
     blen = b.length;
 

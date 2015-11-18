@@ -3,15 +3,17 @@ var diff = require('../x-array/x-array'),
     prop = require('../prop/prop');
 
 
-module.exports = function Transition(getter, transgetter) {
+module.exports = function Transition(getter, spec) {
     'use strict';
-    transgetter = prop(transgetter);
-    var lastValue,
+
+    var transgetter = prop((typeof spec === 'string') ? spec : spec.transitionField),
+        lastValue,
         diffspec = {
             id: function (obj) {return obj.key; },
             compareId: function (ida,  idb) { return ida.localeCompare(idb); },
             compareObj: function (obja, objb) {return obja.key.localeCompare(objb.key); },
-            equality: function (report1, report2) { return transgetter(report1) === transgetter(report2); }
+            equality: function (report1, report2) { return transgetter(report1) === transgetter(report2); },
+            filter: spec.filter
         };
 
     function listener() {
