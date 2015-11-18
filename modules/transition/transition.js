@@ -62,7 +62,6 @@ module.exports = function Transition(getter, spec) {
             pusher(transgetter(o), 'out', id);
         }
 
-
         pusher = spec.count  ? countpusher : listpusher;
 
         return {

@@ -224,6 +224,36 @@ H.transition('issues', 'status').fromArray(data);
 ]
 ```
 
+#### Counting only
+If you are only interested in counting and not in listing what transitionned, then define transition as follow :
+
+```javascript
+H.transition('issues', {
+    transitionField: 'status',
+    count: true
+}).fromArray(data);
+
+// returns
+[
+    { date: new Date('1995-12-17T03:24:00'), issues: {}},
+    { date: new Date('1995-12-18T03:24:00'), issues: {
+        New: {
+            New: 1,
+            out: 1,
+...
+
+```
+#### Filtering
+If you are only interested in some of the issues, then define a filter as follow:
+```javascript
+H.transition('issues', {
+    transitionField: 'status',
+    filter: function (issue){return issue.type === 'Bug'; }
+}).fromArray(data);
+
+```
+
+
 
 ### Object Flux
 In case you need to compute flux on Map like object. In below example, objects to compare have username as key and an array of resources as value.
