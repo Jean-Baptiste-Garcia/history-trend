@@ -551,6 +551,75 @@ describe('history-trend', function () {
             ]);
         });
 
+        it('should work when only counting', function () {
+            var data = [
+                {date: new Date('1995-12-17T03:24:00'), issues: [
+                    //identical
+                    //{key: 'JIRA-100', status: 'New'},
+                    {key: 'JIRA-101', status: 'In Progress'},
+                    {key: 'JIRA-102', status: 'Done'},
+                    //removed
+                    {key: 'JIRA-200', status: 'New'},
+                    {key: 'JIRA-201', status: 'In Progress'},
+                    {key: 'JIRA-202', status: 'Done'},
+                    //modified
+                    {key: 'JIRA-400', status: 'New'},
+                    {key: 'JIRA-401', status: 'In Progress'},
+                    {key: 'JIRA-402', status: 'Done'},
+                    {key: 'JIRA-403', status: 'New'},
+                    // misc
+                    {key: 'JIRA-500', status: 'New'}
+                ]},
+                {date: new Date('1995-12-18T03:24:00'), issues: [
+                    // identical
+                    //{key: 'JIRA-100', status: 'New'},
+                    {key: 'JIRA-101', status: 'In Progress'},
+                    {key: 'JIRA-102', status: 'Done'},
+                    // added
+                    {key: 'JIRA-300', status: 'New'},
+                    {key: 'JIRA-301', status: 'In Progress'},
+                    {key: 'JIRA-302', status: 'Done'},
+                    //modified
+                    {key: 'JIRA-400', status: 'In Progress'},
+                    {key: 'JIRA-401', status: 'Done'},
+                    {key: 'JIRA-402', status: 'New'},
+                    {key: 'JIRA-403', status: 'Done'},
+                    // misc
+                    {key: 'JIRA-500', status: 'In Progress'}
+                ]}
+            ];
+
+            H.transition('issues', {
+                transitionField: 'status',
+                count: true
+            }).fromArray(data).should.eql([
+                { date: new Date('1995-12-17T03:24:00'), issues: {}},
+                { date: new Date('1995-12-18T03:24:00'), issues: {
+                    New: {
+                        //New: 0,
+                        out: 1,
+                        'In Progress': 2,
+                        Done: 1
+                    },
+                    'In Progress': {
+                        'In Progress': 1,
+                        out: 1,
+                        Done: 1
+                    },
+                    'Done': {
+                        Done: 1,
+                        out: 1,
+                        New: 1
+                    },
+                    'out': {
+                        New: 1,
+                        'In Progress': 1,
+                        Done: 1
+                    }
+                }}
+            ]);
+        });
+
         it('should work with custom filter', function () {
             var data = [
                 {date: new Date('1995-12-17T03:24:00'), issues: [

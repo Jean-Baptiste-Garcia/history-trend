@@ -17,12 +17,13 @@ module.exports = function Transition(getter, spec) {
         };
 
     function listener() {
-        var transitions = {};
+        var transitions = {},
+            pusher;
 
         function begin() {}
         function end() { return transitions; }
 
-        function push(statea, stateb, id) {
+        function listpusher(statea, stateb, id) {
             if (!transitions[statea]) {
                 transitions[statea] = {};
             }
@@ -33,22 +34,36 @@ module.exports = function Transition(getter, spec) {
             transitions[statea][stateb].push(id);
         }
 
+        function countpusher(statea, stateb, id) {
+            if (!transitions[statea]) {
+                transitions[statea] = {};
+            }
+
+            if (!transitions[statea][stateb]) {
+                transitions[statea][stateb] = 0;
+            }
+            transitions[statea][stateb] += 1;
+        }
+
         function identical(id, oa, ob) {
             var state = transgetter(oa);
-            push(state, state, id);
+            pusher(state, state, id);
         }
 
         function modified(id, oa, ob) {
-            push(transgetter(oa), transgetter(ob), id);
+            pusher(transgetter(oa), transgetter(ob), id);
         }
 
         function added(id, o) {
-            push('out', transgetter(o), id);
+            pusher('out', transgetter(o), id);
         }
 
         function removed(id, o) {
-            push(transgetter(o), 'out', id);
+            pusher(transgetter(o), 'out', id);
         }
+
+
+        pusher = spec.count  ? countpusher : listpusher;
 
         return {
             beginComparison: begin,
