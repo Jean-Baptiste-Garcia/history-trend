@@ -4,7 +4,6 @@ history-trend
 history-trend computes trends from an history source. Source can be :
 * array of versionned reports
 * [history-store](https://github.com/Jean-Baptiste-Garcia/history-store)
-* stream (using node.js stream.Readable)
 
 Installation
 ------------

@@ -29,6 +29,7 @@ module.exports = (function () {
             return namedaction;
         });
     }
+
     /**
     * construct a chain object to allow :
     * h.timeserie(field1).flux(field2).data(myData)
@@ -36,7 +37,8 @@ module.exports = (function () {
     */
     Chain = function (Trends) {
         var chain,
-            actions = [];
+            actions = [],
+            datefilter;
 
         function compute(cb, source, customdate) {
             var dategetter = prop(customdate || 'date'),
@@ -64,7 +66,14 @@ module.exports = (function () {
 
             return source instanceof Readable ?
                     streamCompute(source, cb, customdate) :
-                    source.map(trendsValue);
+                    datefilter
+                        ? datefilter(source).map(trendsValue)
+                        : source.map(trendsValue);
+        }
+
+        function onDate(w) {
+            datefilter = w;
+            return chain;
         }
 
         // make public (chained) Trend function
@@ -80,9 +89,8 @@ module.exports = (function () {
         chain = R.mapObj(makeChainedTrend)(Trends);
 
         chain.fromArray  = function (reports, customdate) {return compute(undefined, reports, customdate); };
-        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate), store.customdate); };
-        chain.formStream = function (stream, cb, customdate) {return compute(cb, stream, customdate); };
-
+        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate, datefilter), store.customdate); };
+        chain.whereDate = onDate;
         return chain;
     };
 
@@ -104,6 +112,7 @@ module.exports = (function () {
             trends[key] = require('./modules/flux/utils')[key];
         });
         trends.prop = prop;
+
 
         return trends;
     }

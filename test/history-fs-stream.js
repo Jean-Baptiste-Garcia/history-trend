@@ -10,7 +10,8 @@ var should = require('chai').should(),
     R = require('ramda'),
     historystore = require('../../history-store'),
     storageRoot = '../tmp-history-store',
-    H = require('../index');
+    H = require('../index'),
+    WW = require('../../history-when/index');
 
 describe('history-trend on fs store', function () {
 
@@ -45,6 +46,21 @@ describe('history-trend on fs store', function () {
                 done();
             });
         });
+
+        it('computes timeserie h.whereDate(f).f(k).fromStore(store, cb)', function (done) {
+            var W = WW({present:  new Date('1995-12-19T09:24:00')});
+            H
+                .timeserie('status.sessionCount')
+                .whereDate(W.last24h(function (o) {return o.date; }))
+                .fromStore(hs, function (err, timeserie) {
+                    if (err) {return done(err); }
+                    timeserie.should.eql([
+                        { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
+                    ]);
+                    done();
+                });
+        });
+
 
         it('handles stream error.', function (done) {
 
