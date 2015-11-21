@@ -64,10 +64,13 @@ module.exports = (function () {
                 stream.on('end', function () {cb(lasterror, lasterror ? undefined : trends); });
             }
 
-            return source instanceof Readable ?
-                    streamCompute(source, cb, customdate) :
-                    datefilter
-                        ? datefilter(source).map(trendsValue)
+            return source instanceof Readable
+                    ? streamCompute(source, cb, customdate)
+                    : datefilter
+                        // 1) reverse catalog for time descendant sort
+                        // 2) apply datefilter
+                        // 3) reverse to come back to ascendant sort
+                        ? datefilter(R.reverse(source)).reverse().map(trendsValue)
                         : source.map(trendsValue);
         }
 

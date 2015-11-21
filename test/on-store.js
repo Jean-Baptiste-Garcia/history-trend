@@ -47,21 +47,6 @@ describe('history-trend on fs store', function () {
             });
         });
 
-        it('computes timeserie h.whereDate(f).f(k).fromStore(store, cb)', function (done) {
-            var W = WW({present:  new Date('1995-12-19T09:24:00')});
-            H
-                .timeserie('status.sessionCount')
-                .whereDate(W.last24h(function (o) {return o.date; }))
-                .fromStore(hs, function (err, timeserie) {
-                    if (err) {return done(err); }
-                    timeserie.should.eql([
-                        { date: new Date('1995-12-19T05:44:10'), sessionCount: 102}
-                    ]);
-                    done();
-                });
-        });
-
-
         it('handles stream error.', function (done) {
 
             fse.writeFileSync(path.resolve(storageRoot + '/MyServer/' + (Date.now() + 10000) + '-938112514.json'), '{"date":"1995-12-17T03:24:00.000Z","status":}');
