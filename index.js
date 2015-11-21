@@ -83,6 +83,18 @@ module.exports = (function () {
             return store.catalog(cb, catalogTransform());
         }
 
+        function fromStore(store, cb, startdate) {
+            function streamcb(err, stream) {
+                compute(cb, stream, store.customdate);
+            }
+
+            store.stream(streamcb, {
+                transform: catalogTransform(),
+                startdate: startdate
+            });
+        }
+
+
         function onDate(w) {
             datefilter = w;
             return chain;
@@ -101,7 +113,7 @@ module.exports = (function () {
         chain = R.mapObj(makeChainedTrend)(Trends);
 
         chain.fromArray  = function (reports, customdate) {return compute(undefined, reports, customdate); };
-        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate, catalogTransform()), store.customdate); };
+        chain.fromStore  = fromStore;
         chain.whereDate = onDate;
         chain.catalog = catalogFromStore;
         return chain;
