@@ -40,6 +40,15 @@ module.exports = (function () {
             actions = [],
             datefilter;
 
+        function catalogTransform() {
+            // 1) reverse catalog for time descendant sort
+            // 2) apply datefilter
+            // 3) reverse to come back to ascendant sort
+            return datefilter
+                ? function (o) {return datefilter(R.reverse(o)).reverse(); }
+                : function (o) {return o; };
+        }
+
         function compute(cb, source, customdate) {
             var dategetter = prop(customdate || 'date'),
                 datekey = trendname(dategetter, 'date'), // for anonymous function
@@ -66,16 +75,12 @@ module.exports = (function () {
 
             return source instanceof Readable
                     ? streamCompute(source, cb, customdate)
-                    : datefilter
-                        // 1) reverse catalog for time descendant sort
-                        // 2) apply datefilter
-                        // 3) reverse to come back to ascendant sort
-                        ? datefilter(R.reverse(source)).reverse().map(trendsValue)
-                        : source.map(trendsValue);
+                    : catalogTransform()(source).map(trendsValue);
         }
 
+
         function catalogFromStore(store, cb) {
-            return store.catalog(cb, datefilter);
+            return store.catalog(cb, catalogTransform());
         }
 
         function onDate(w) {
@@ -96,7 +101,7 @@ module.exports = (function () {
         chain = R.mapObj(makeChainedTrend)(Trends);
 
         chain.fromArray  = function (reports, customdate) {return compute(undefined, reports, customdate); };
-        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate, datefilter), store.customdate); };
+        chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate, catalogTransform()), store.customdate); };
         chain.whereDate = onDate;
         chain.catalog = catalogFromStore;
         return chain;
