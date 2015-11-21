@@ -78,22 +78,16 @@ module.exports = (function () {
                     : catalogTransform()(source).map(trendsValue);
         }
 
-
         function catalogFromStore(store, cb) {
-            return store.catalog(cb, catalogTransform());
+            return store.catalog(cb, {transform: catalogTransform()});
         }
 
         function fromStore(store, cb, startdate) {
-            function streamcb(err, stream) {
+            store.stream(function (err, stream) {
                 compute(cb, stream, store.customdate);
-            }
-
-            store.stream(streamcb, {
-                transform: catalogTransform(),
-                startdate: startdate
-            });
+            },
+                {transform: catalogTransform(), startdate: startdate});
         }
-
 
         function onDate(w) {
             datefilter = w;
