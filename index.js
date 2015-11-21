@@ -74,6 +74,10 @@ module.exports = (function () {
                         : source.map(trendsValue);
         }
 
+        function catalogFromStore(store, cb) {
+            return store.catalog(cb, datefilter);
+        }
+
         function onDate(w) {
             datefilter = w;
             return chain;
@@ -94,6 +98,7 @@ module.exports = (function () {
         chain.fromArray  = function (reports, customdate) {return compute(undefined, reports, customdate); };
         chain.fromStore  = function (store, cb, startdate) {return compute(cb, store.stream(startdate, datefilter), store.customdate); };
         chain.whereDate = onDate;
+        chain.catalog = catalogFromStore;
         return chain;
     };
 

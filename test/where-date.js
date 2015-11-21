@@ -101,5 +101,35 @@ describe('where date', function () {
                     done();
                 });
         });
+
+        it('supports caching for daily', function (done) {
+            var W = WW({present:  new Date('1995-12-19T09:24:00')}),
+                q = hs.cache(H.timeserie('v').whereDate(W.daily(function (o) {return o.date; })));
+
+            q.trends(function (err, trends) {
+                if (err) { return done(err); }
+                trends.should.eql([
+                    {date: new Date('1995-12-17T03:24:00'), v: 1},
+                    {date: new Date('1995-12-18T04:44:10'), v: 2},
+                    {date: new Date('1995-12-19T06:44:10'), v: 4}
+                ], '1st timeserie');
+                hs.put({date: new Date('1995-12-19T07:44:10'), v: 5}, function (err) {
+                    if (err) {return done(err); }
+                    q.trends(function (err2, trends2) {
+                        if (err2) { return done(err2); }
+                        // TODO check cache file has changed
+                        trends2.should.eql([
+                            {date: new Date('1995-12-17T03:24:00'), v: 1},
+                            {date: new Date('1995-12-18T04:44:10'), v: 2},
+                            {date: new Date('1995-12-19T07:44:10'), v: 5}
+                        ], 'second timeserie');
+                        // TODO get trend again and check file has not changed
+                        done();
+                    });
+                });
+            });
+        });
+        // TODO check flux / whereDate
+
     });
 });
