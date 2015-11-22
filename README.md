@@ -36,6 +36,7 @@ H.flux('issues').fromArray(reports);
  {date: 'Thu Dec 03 2015 04:30:00', issues: { added: ['JIRA-900', 'JIRA-901'], removed: [], modified: ['JIRA-789'], identical: ['JIRA-123']}}
  ]
 ```
+
 #### Function based flux
 It is possible to use function instead of named property. For instance, if one is only interested in flux of bugs :
 ```javascript
@@ -72,7 +73,6 @@ H.flux('issues', {
     equality: function (r1, r2) { return r1.remaining === r2.remaining; }}).fromArray(reports);
 
 ```
-
 
 #### Custom output
 If you focus on movements (added/removed/modified), then you might be only interested in number of identical.
@@ -253,7 +253,6 @@ H.transition('issues', {
 ```
 
 
-
 ### Object Flux
 In case you need to compute flux on Map like object. In below example, objects to compare have username as key and an array of resources as value.
 fluxObj compares key/values of each object and :
@@ -331,6 +330,17 @@ Using custom functions is specially convenient when reports are raw and you need
 ### Count
 Count simply returns length of an array.
 
+
+### Date Filtering
+It is possible to filter dates with any array filter. Here we show an example using [history-when](https://github.com/Jean-Baptiste-Garcia/history-when)
+
+```javascript
+var H = require('history-trend'),
+    W = require('history-when')();
+
+// only one report per day will be considered (the most recent).
+H.timeserie(diskUsageRatio).whereDate(W.daily);
+```
 
 ### Chaining
 It is possible to chain all trends so that several trends can be computed in one call.
