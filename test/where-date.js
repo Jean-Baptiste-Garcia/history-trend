@@ -201,6 +201,70 @@ describe('where date', function () {
                     });
                 });
         });
+
+        it('cached works daily', function (done) {
+            fse.removeSync(path.resolve(storageRoot));
+            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+                hs = historystore(storageRoot).report('MyServer'),
+                reports = [
+                    {date: new Date('1995-12-17T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'New'},
+                        {key: 'JIRA-456', status: 'In Progress'}]},
+                    {date: new Date('1995-12-18T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'In Progress'},
+                        {key: 'JIRA-789', status: 'In Progress'}]},
+                    {date: new Date('1995-12-20T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'In Progress'},
+                        {key: 'JIRA-789', status: 'Done'},
+                        {key: 'JIRA-900', status: 'Done'},
+                        {key: 'JIRA-901', status: 'Done'}]}
+                ],
+                q = hs.cache(H.flux('issues').whereDate(W.daily(function (o) {return o.date; })));
+            async.series(reports.map(function makePut(report) {
+                return function put(callback) {hs.put(report, callback); };
+            }),
+                function () {
+                    q.trends(function (err, flux) {
+                        if (err) {return done(err); }
+                        flux.should.eql([
+                            {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                            {date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
+                            {date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
+                        ], '1st trends computation');
+
+                        hs.put({date: new Date('1995-12-20T03:44:00'), issues: [
+                            {key: 'JIRA-123', status: 'Done'},
+                            {key: 'JIRA-789', status: 'Done'},
+                            {key: 'JIRA-900', status: 'Done'},
+                            {key: 'JIRA-901', status: 'Done'}]},
+                            function (err) {
+                                if (err) {return done(err); }
+                                q.trends(function (err, flux) {
+                                    if (err) {return done(err); }
+                                    var cachefolder = storageRoot + '/MyServer/trends/',
+                                        cachefile =  cachefolder + 'anonymous.json',
+                                        cacheddata = fse.readFileSync(cachefile),
+                                        stat = fse.statSync(cachefile),
+                                        expected = [
+                                            {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                                            {date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
+                                            {date: new Date('1995-12-20T03:44:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']}}
+                                        ];
+
+                                    JSON.parseWithDate(cacheddata).should.eql(expected, 'cache file updated');
+                                    flux.should.eql(expected, '2nd trends computation');
+                                    q.trends(function (err, flux) {
+                                        if (err) {return done(err); }
+                                        fse.statSync(cachefile).should.eql(stat, 'cache file not rewritten');
+                                        flux.should.eql(expected, 'reread second timeserie');
+                                        done();
+                                    });
+                                });
+                            });
+
+                    });
+                });
+        });
     });
 
 });
