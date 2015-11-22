@@ -22,7 +22,7 @@ describe('history-trend with when', function () {
                     {date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
                     {date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
                 ];
-            H.timeserie('sessionCount').whereDate(W.last24h(function (o) {return o.date; })).fromArray(data).should.eql([
+            H.timeserie('sessionCount').whereDate(W.last24h).fromArray(data).should.eql([
                 {date: new Date('1995-12-20T03:24:00'), sessionCount: 120}
             ]);
         });
@@ -36,7 +36,7 @@ describe('history-trend with when', function () {
                     {date: new Date('1995-12-20T03:24:00'), sessionCount: 4},
                     {date: new Date('1995-12-20T04:24:00'), sessionCount: 5}
                 ];
-            H.timeserie('sessionCount').whereDate(W.daily(function (o) {return o.date; })).fromArray(data).should.eql([
+            H.timeserie('sessionCount').whereDate(W.daily).fromArray(data).should.eql([
                 {date: new Date('1995-12-17T03:24:00'), sessionCount: 2},
                 {date: new Date('1995-12-18T03:24:00'), sessionCount: 3},
                 {date: new Date('1995-12-20T04:24:00'), sessionCount: 5}
@@ -74,7 +74,7 @@ describe('where date', function () {
             var W = WW({present:  new Date('1995-12-19T09:24:00')});
             H
                 .timeserie('v')
-                .whereDate(W.last24h(function (o) {return o.date; }))
+                .whereDate(W.last24h)
                 .fromStore(hs, function (err, timeserie) {
                     if (err) {return done(err); }
                     timeserie.should.eql([
@@ -89,7 +89,7 @@ describe('where date', function () {
             var W = WW({present:  new Date('1995-12-19T09:24:00')});
             H
                 .timeserie('v')
-                .whereDate(W.daily(function (o) {return o.date; }))
+                .whereDate(W.daily)
                 .fromStore(hs, function (err, timeserie) {
                     if (err) {return done(err); }
                     timeserie.should.eql([
@@ -103,7 +103,7 @@ describe('where date', function () {
 
         it('cached works with daily', function (done) {
             var W = WW({present:  new Date('1995-12-19T09:24:00')}),
-                q = hs.cache(H.timeserie('v').whereDate(W.daily(function (o) {return o.date; })));
+                q = hs.cache(H.timeserie('v').whereDate(W.daily));
 
             q.trends(function (err, trends) {
                 if (err) { return done(err); }
@@ -167,7 +167,7 @@ describe('where date', function () {
                         {key: 'JIRA-900', status: 'Done'},
                         {key: 'JIRA-901', status: 'Done'}]}
                 ],
-                q =  H.flux('issues').whereDate(W.daily(function (o) {return o.date; }));
+                q =  H.flux('issues').whereDate(W.daily);
             async.series(reports.map(function makePut(report) {
                 return function put(callback) {hs.put(report, callback); };
             }),
@@ -219,7 +219,7 @@ describe('where date', function () {
                         {key: 'JIRA-900', status: 'Done'},
                         {key: 'JIRA-901', status: 'Done'}]}
                 ],
-                q = hs.cache(H.flux('issues').whereDate(W.daily(function (o) {return o.date; })));
+                q = hs.cache(H.flux('issues').whereDate(W.daily));
             async.series(reports.map(function makePut(report) {
                 return function put(callback) {hs.put(report, callback); };
             }),
