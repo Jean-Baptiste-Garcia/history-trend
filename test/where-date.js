@@ -16,7 +16,7 @@ var should = require('chai').should(),
 describe('history-trend with when', function () {
     describe('timeSerie', function () {
         it('works for dated objects whereDate is last24h', function () {
-            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+            var W = WW({fixedPresent: new Date('1995-12-20T09:24:00')}),
                 data = [
                     {date: new Date('1995-12-17T03:24:00'), sessionCount: 100},
                     {date: new Date('1995-12-18T03:24:00'), sessionCount: 110},
@@ -28,7 +28,7 @@ describe('history-trend with when', function () {
         });
 
         it('works for dated objects whereDate is daily', function () {
-            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+            var W = WW({fixedPresent: new Date('1995-12-20T09:24:00')}),
                 data = [
                     {date: new Date('1995-12-17T03:20:00'), sessionCount: 1},
                     {date: new Date('1995-12-17T03:24:00'), sessionCount: 2},
@@ -71,7 +71,7 @@ describe('where date', function () {
         });
 
         it('works with last24h', function (done) {
-            var W = WW({present:  new Date('1995-12-19T09:24:00')});
+            var W = WW({fixedPresent:  new Date('1995-12-19T09:24:00')});
             H
                 .timeserie('v')
                 .whereDate(W.last24h)
@@ -86,7 +86,7 @@ describe('where date', function () {
         });
 
         it('works with daily', function (done) {
-            var W = WW({present:  new Date('1995-12-19T09:24:00')});
+            var W = WW();
             H
                 .timeserie('v')
                 .whereDate(W.daily)
@@ -102,7 +102,7 @@ describe('where date', function () {
         });
 
         it('cached works with daily', function (done) {
-            var W = WW({present:  new Date('1995-12-19T09:24:00')}),
+            var W = WW(),
                 q = hs.cache(H.timeserie('v').whereDate(W.daily));
 
             q.trends(function (err, trends) {
@@ -152,7 +152,7 @@ describe('where date', function () {
     describe('flux', function () {
         it('works daily', function (done) {
             fse.removeSync(path.resolve(storageRoot));
-            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+            var W = WW(),
                 hs = historystore(storageRoot).report('MyServer'),
                 reports = [
                     {date: new Date('1995-12-17T03:24:00'), issues: [
@@ -204,7 +204,7 @@ describe('where date', function () {
 
         it('cached works daily', function (done) {
             fse.removeSync(path.resolve(storageRoot));
-            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+            var W = WW(),
                 hs = historystore(storageRoot).report('MyServer'),
                 reports = [
                     {date: new Date('1995-12-17T03:24:00'), issues: [
