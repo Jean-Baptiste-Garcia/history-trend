@@ -57,7 +57,7 @@ module.exports = (function () {
             function trendsValue(report) {
                 var trendItem = {};
                 trendItem[datekey] = dategetter(report);
-                namedactions.forEach(function (action, index) {
+                namedactions.forEach(function (action) {
                     trendItem[action.trendname] = action.trendvalue(report);
                 });
                 return trendItem;
@@ -72,6 +72,11 @@ module.exports = (function () {
 
                 stream.on('end', function () {cb(lasterror, lasterror ? undefined : trends); });
             }
+
+            // Reinitialize trend value for each computation
+            namedactions.forEach(function (action) {
+                action.trendvalue = action.trend(action.getter, action.option);
+            });
 
             return source instanceof Readable
                     ? streamCompute(source, cb, customdate)
@@ -99,7 +104,7 @@ module.exports = (function () {
         function makeChainedTrend(Trend) {
             return function (field, option) {
                 var getter = prop(field);
-                actions.push({name: trendname(getter), trendvalue: new Trend(getter, option)});
+                actions.push({name: trendname(getter), trend: Trend, getter: getter, option: option});
                 return chain;
             };
         }

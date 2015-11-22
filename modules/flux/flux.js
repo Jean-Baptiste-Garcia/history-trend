@@ -34,7 +34,6 @@ function diffConfig(options) {
 
 module.exports = function Flux(getter, options) {
     var lastValue;
-
     return function flux(report) {
         var currentValue = getter(report),
             fluxValue;

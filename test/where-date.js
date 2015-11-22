@@ -49,8 +49,7 @@ describe('history-trend with when', function () {
 
 describe('where date', function () {
 
-    describe('on default store', function () {
-
+    describe('timeserie', function () {
         var hs;
 
         beforeEach(function startAndPopulateServer(done) {
@@ -71,7 +70,7 @@ describe('where date', function () {
             }), done);
         });
 
-        it('computes timeserie for last24h', function (done) {
+        it('works with last24h', function (done) {
             var W = WW({present:  new Date('1995-12-19T09:24:00')});
             H
                 .timeserie('v')
@@ -86,7 +85,7 @@ describe('where date', function () {
                 });
         });
 
-        it('computes timeserie daily', function (done) {
+        it('works with daily', function (done) {
             var W = WW({present:  new Date('1995-12-19T09:24:00')});
             H
                 .timeserie('v')
@@ -102,7 +101,7 @@ describe('where date', function () {
                 });
         });
 
-        it('supports caching for daily', function (done) {
+        it('cached works with daily', function (done) {
             var W = WW({present:  new Date('1995-12-19T09:24:00')}),
                 q = hs.cache(H.timeserie('v').whereDate(W.daily(function (o) {return o.date; })));
 
@@ -148,7 +147,60 @@ describe('where date', function () {
                 });
             });
         });
-        // TODO check flux / whereDate
-
     });
+
+    describe('flux', function () {
+        it('works daily', function (done) {
+            fse.removeSync(path.resolve(storageRoot));
+            var W = WW({present:  new Date('1995-12-20T09:24:00')}),
+                hs = historystore(storageRoot).report('MyServer'),
+                reports = [
+                    {date: new Date('1995-12-17T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'New'},
+                        {key: 'JIRA-456', status: 'In Progress'}]},
+                    {date: new Date('1995-12-18T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'In Progress'},
+                        {key: 'JIRA-789', status: 'In Progress'}]},
+                    {date: new Date('1995-12-20T03:24:00'), issues: [
+                        {key: 'JIRA-123', status: 'In Progress'},
+                        {key: 'JIRA-789', status: 'Done'},
+                        {key: 'JIRA-900', status: 'Done'},
+                        {key: 'JIRA-901', status: 'Done'}]}
+                ],
+                q =  H.flux('issues').whereDate(W.daily(function (o) {return o.date; }));
+            async.series(reports.map(function makePut(report) {
+                return function put(callback) {hs.put(report, callback); };
+            }),
+                function () {
+                    q.fromStore(hs, function (err, timeserie) {
+                        if (err) {return done(err); }
+                        timeserie.should.eql([
+                            {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                            {date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
+                            {date: new Date('1995-12-20T03:24:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: ['JIRA-123'], modified: ['JIRA-789']}}
+                        ], '1st trends computation');
+
+                        hs.put({date: new Date('1995-12-20T03:44:00'), issues: [
+                            {key: 'JIRA-123', status: 'Done'},
+                            {key: 'JIRA-789', status: 'Done'},
+                            {key: 'JIRA-900', status: 'Done'},
+                            {key: 'JIRA-901', status: 'Done'}]},
+                            function (err) {
+                                if (err) {return done(err); }
+                                q.fromStore(hs, function (err, timeserie) {
+                                    if (err) {return done(err); }
+                                    timeserie.should.eql([
+                                        {date: new Date('1995-12-17T03:24:00'), issues: {added: [], removed: [], identical: [], modified: []}},
+                                        {date: new Date('1995-12-18T03:24:00'), issues: {added: ['JIRA-789'], removed: ['JIRA-456'], identical: [], modified: ['JIRA-123']}},
+                                        {date: new Date('1995-12-20T03:44:00'), issues: {added: ['JIRA-900', 'JIRA-901'], removed: [], identical: [], modified: ['JIRA-123', 'JIRA-789']}}
+                                    ], '2nd trends computation');
+                                    done();
+                                });
+                            });
+
+                    });
+                });
+        });
+    });
+
 });
