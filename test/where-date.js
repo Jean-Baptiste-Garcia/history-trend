@@ -117,14 +117,33 @@ describe('where date', function () {
                     if (err) {return done(err); }
                     q.trends(function (err2, trends2) {
                         if (err2) { return done(err2); }
-                        // TODO check cache file has changed
+                        // check cache is up to date
+                        var cachefolder = storageRoot + '/MyServer/trends/',
+                            cachefile =  cachefolder + 'anonymous.json',
+                            cacheddata = fse.readFileSync(cachefile),
+                            stat = fse.statSync(cachefile);
+                        //console.log(stat);
+                        JSON.parseWithDate(cacheddata).should.eql([
+                            {date: new Date('1995-12-17T03:24:00'), v: 1},
+                            {date: new Date('1995-12-18T04:44:10'), v: 2},
+                            {date: new Date('1995-12-19T07:44:10'), v: 5}
+                        ], 'cache file updated');
                         trends2.should.eql([
                             {date: new Date('1995-12-17T03:24:00'), v: 1},
                             {date: new Date('1995-12-18T04:44:10'), v: 2},
                             {date: new Date('1995-12-19T07:44:10'), v: 5}
                         ], 'second timeserie');
                         // TODO get trend again and check file has not changed
-                        done();
+                        q.trends(function (err2, trends2) {
+                            fse.statSync(cachefile).should.eql(stat, 'cache file not rewritten');
+                            trends2.should.eql([
+                                {date: new Date('1995-12-17T03:24:00'), v: 1},
+                                {date: new Date('1995-12-18T04:44:10'), v: 2},
+                                {date: new Date('1995-12-19T07:44:10'), v: 5}
+                            ], 'reread second timeserie');
+                            done();
+                        });
+
                     });
                 });
             });
