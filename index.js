@@ -89,6 +89,7 @@ module.exports = (function () {
 
         function fromStore(store, cb, startdate) {
             store.stream(function (err, stream) {
+                if (err) {return cb(err); }
                 compute(cb, stream, store.customdate);
             },
                 {transform: catalogTransform(), startdate: startdate});
